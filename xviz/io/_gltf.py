@@ -7,6 +7,7 @@ PY3 = sys.version_info.major > 2
 
 import logging
 from collections import namedtuple
+from easydict import EasyDict as edict
 
 import json
 import struct
@@ -42,7 +43,7 @@ class ImageWrapper:
         self.width = None
         self.height = None
 
-class GLB:
+class GLTF:
     """
     # Reference
     [GLBBuilder](https://github.com/uber-web/loaders.gl/blob/master/modules/gltf/src/lib/deprecated/glb-builder.js)
@@ -53,21 +54,21 @@ class GLB:
     MAGIC_JSON = 0x4e4f534a # JSON in ASCII
     MAGIC_BIN = 0x004e4942 # BIN\0 in ASCII
 
-    def __init__(self, log=None):
+    def __init__(self):
         self.version = 2
         self.byteLength = 0 # keep track of body size
-        self.json = {
-            "asset": {
+        self.json = edict(
+            asset={
                 "version": str(self.version)
             },
-            "buffers": [],
-            "bufferViews": [],
-            "accessors": [],
-            "images": [],
-            "meshes": []
-        }
+            buffers=[],
+            bufferViews=[],
+            accessors=[],
+            image=[],
+            meshes=[]
+        )
         self.sourceBuffers = []
-        self.log = logging.getLogger(__name__) if log is None else log
+        self.log = logging.getLogger(GLTF) # if log is None else log
 
     ################ Basic glTF adders ##############
 
@@ -91,13 +92,13 @@ class GLB:
         accessorIndex: int
             Index of added buffer in "accessors" list
         '''
-        self.json["accessors"].append(accessor_t(
+        self.json.accessors.append(accessor_t(
             bufferView=bufferViewIndex,
             type=getAccessorTypeFromSize(accessorArgs["size"]),
             componentType=accessorArgs["componentType"],
             count=accessorArgs["count"]
         )._asdict())
-        return len(self.json["accessors"]) - 1
+        return len(self.json.accessors) - 1
 
     def addBufferView(self, buffer):
         '''
@@ -117,14 +118,14 @@ class GLB:
         if not isinstance(buffer, bytes):
             raise ValueError("addBufferView should be directly used with bytes")
 
-        self.json["bufferViews"].append(bufferView_t(
+        self.json.bufferViews.append(bufferView_t(
             buffer=0,
             byteOffset=self.byteLength,
             byteLength=len(buffer)
         )._asdict())
         self.byteLength += padTo4Bytes(len(buffer))
         self.sourceBuffers.append(buffer)
-        return len(self.json["bufferViews"]) - 1
+        return len(self.json.bufferViews) - 1
 
     def addBuffer(self, buffer, **accessorArgs):
         '''
@@ -210,7 +211,7 @@ class GLB:
         '''
 
         # Prepare data
-        self.json['buffer'] = [{"byteLength": self.byteLength}]
+        self.json.buffer = [{"byteLength": self.byteLength}]
         binary = b''.join(self.sourceBuffers)
         jsonstr = json.dumps(self.json, separators=(',',':'))
         if PY3:
@@ -240,15 +241,15 @@ class GLB:
     def addExtraData(self, key, data, **options):
         packTypedArrays = options.pop("packTypedArrays", True)
         if 'extras' not in self.json.keys():
-            self.json['extras'] = {}
-        self.json['extras'][key] = self.packBinaryJson(data, **options) \
+            self.json.extras = edict()
+        self.json.extras[key] = self.packBinaryJson(data, **options) \
             if packTypedArrays else data
 
     def addExtension(self, ext, data, **options):
         packTypedArrays = options.pop("packTypedArrays", True)
         if 'extensions' not in self.json.keys():
-            self.json['extensions'] = {}
-        self.json['extensions'][key] = self.packBinaryJson(data, **options) \
+            self.json.extensions = edict()
+        self.json.extensions[ext] = self.packBinaryJson(data, **options) \
             if packTypedArrays else data
         self.registerUsedExtension(ext)
 
@@ -258,15 +259,15 @@ class GLB:
 
     def registerUsedExtension(self, ext):
         if 'extensionUsed' not in self.json.keys():
-            self.json['extensionsUsed'] = []
-        if ext not in self.json['extensionUsed']:
-            self.json['extensionUsed'].append(ext)
+            self.json.extensionsUsed = []
+        if ext not in self.json.extensionUsed:
+            self.json.extensionUsed.append(ext)
 
     def registerRequiredExtension(self, ext):
         if 'extensionRequired' not in self.json.keys():
-            self.json['extensionRequired'] = []
-        if ext not in self.json['extensionRequired']:
-            self.json['extensionRequired'].append(ext)
+            self.json.extensionRequired = []
+        if ext not in self.json.extensionRequired:
+            self.json.extensionRequired.append(ext)
 
     ################ glTF Applications ##############
 
@@ -275,13 +276,13 @@ class GLB:
             raise ValueError("Image should be wrapped with ImageWrapper")
 
         bufferViewIndex = self.addBufferView(obj)
-        self.json['images'].append(image_t(
+        self.json.images.append(image_t(
             bufferView=bufferViewIndex,
             mimeType=obj.mimeType,
             width=obj.width,
             height=obj.height
         )._asdict())
-        return len(self.json['images']) - 1
+        return len(self.json.images) - 1
     
     def addPointCloud(self, obj):
         raise NotImplementedError()
