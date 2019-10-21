@@ -5,25 +5,25 @@ class XVIZBaseBuilder:
     [@xviz/builder/xviz-base-builder]/(https://github.com/uber/xviz/blob/master/modules/builder/src/builders/xviz-base-builder.js)
     """
     def __init__(self, category, metadata, validator):
-        self._streamId = None
+        self._stream_id = None
         self._category = category
         self._metadata = metadata
         self._validator = validator
 
-    def stream(self, streamId):
-        if self._streamId:
+    def stream(self, stream_id):
+        if self._stream_id:
             self._flush()
-        self._streamId = streamId
+        self._stream_id = stream_id
         return self
 
     @property
-    def StreamId(self):
-        return self._streamId
+    def stream_id(self):
+        return self._stream_id
     @property
-    def Category(self):
+    def category(self):
         return self._category
     @property
-    def Metadata(self):
+    def metadata(self):
         return self._metadata
 
     def _flush(self):
@@ -32,13 +32,13 @@ class XVIZBaseBuilder:
         self._category = None
 
     def _validate(self):
-        self._validator.hasProp(self, '_streamId')
-        self._validator.hasProp(self, '_category')
-        self._validator.matchMetadata(self)
+        self._validator.has_prop(self, '_stream_id')
+        self._validator.has_prop(self, '_category')
+        self._validator.match_metadata(self)
 
-    def validateWarn(self, msg):
+    def validate_warn(self, msg):
         self._validator.warn(msg)
-    def validateError(self, msg):
+    def validate_error(self, msg):
         self._validator.error(msg)
-    def validatePropSetOnce(self, prop):
-        self._validator.propSetOnce(self, prop)
+    def validate_prop_set_once(self, prop):
+        self._validator.prop_set_once(self, prop)

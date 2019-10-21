@@ -7,6 +7,8 @@ from xviz.builder.validator import CATEGORY, PRIMITIVE_TYPES
 
 class XVIZPrimitiveBuilder(XVIZBaseBuilder):
     """
+    Method chaining is supported by this builder.
+    
     # Reference
     [@xviz/builder/xviz-primitive-builder]/(https://github.com/uber/xviz/blob/master/modules/builder/src/builders/xviz-primitive-builder.js)
     """
@@ -17,21 +19,27 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         self.reset()
 
     def image(self, data):
+        '''
+        Add image data
+        '''
         if self._type:
             self._flush()
 
         if not isinstance(data, np.ndarray) or not isinstance(data, str):
             # TODO: support PILLOW and other image types
-            self.validateError("An image data must be a string or numpy array")
-        self.validatePropSetOnce("_image")
+            self.validate_error("An image data must be a string or numpy array")
+        self.validate_prop_set_once("_image")
         self._type = PRIMITIVE_TYPES.image
         self._image = edict(data=data)
-        
+
         return self
 
     def dimensions(self, widthPixel=None, heightPixel=None):
+        '''
+        Add dimension specs for image data
+        '''
         if not self._image:
-            self.validateError("An image needs to be set first")
+            self.validate_error("An image needs to be set first")
 
         self._image.width_px = widthPixel
         self._image.height_px = heightPixel
@@ -39,40 +47,40 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         return self
 
     def polygon(self, vertices):
-        if not self._type:
+        if self._type:
             self._flush()
 
-        self.validatePropSetOnce("_vertices")
+        self.validate_prop_set_once("_vertices")
         self._vertices = vertices
         self._type = PRIMITIVE_TYPES.polygon
 
         return self
 
     def polyline(self, vertices):
-        if not self._type:
+        if self._type:
             self._flush()
 
-        self.validatePropSetOnce("_vertices")
+        self.validate_prop_set_once("_vertices")
         self._vertices = vertices
         self._type = PRIMITIVE_TYPES.polyline
 
         return self
-        
+
     def points(self, vertices):
-        if not self._type:
+        if self._type:
             self._flush()
 
-        self.validatePropSetOnce("_vertices")
+        self.validate_prop_set_once("_vertices")
         self._vertices = vertices
         self._type = PRIMITIVE_TYPES.point
 
         return self
 
     def circle(self, position, radius):
-        if not self._type:
+        if self._type:
             self._flush()
 
-        self.validatePropSetOnce("_radius")
+        self.validate_prop_set_once("_radius")
         self.position(position)
 
         self._radius = radius
@@ -81,15 +89,15 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         return self
 
     def stadium(self, start, end, radius):
-        if not self._type:
+        if self._type:
             self._flush()
 
-        self.validatePropSetOnce("_radius")
+        self.validate_prop_set_once("_radius")
 
         if len(start) != 3:
-            self.validateError("The start position must be of the form [x, y, z] where {} was provided".format(start))
+            self.validate_error("The start position must be of the form [x, y, z] where {} was provided".format(start))
         if len(end) != 3:
-            self.validateError("The end position must be of the form [x, y, z] where {} was provided".format(end))
+            self.validate_error("The end position must be of the form [x, y, z] where {} was provided".format(end))
         
         
         self._vertices = [start, end]
@@ -100,10 +108,10 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
     def text(self, message):
         # XXX: is not actually defined yet
-        if not self._type:
+        if self._type:
             self._flush()
 
-        self.validatePropSetOnce('_text')
+        self.validate_prop_set_once('_text')
 
         self._text = message
         self._type = PRIMITIVE_TYPES.text
@@ -111,37 +119,37 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         return self
     
     def position(self, point):
-        self.validatePropSetOnce("_vertices")
+        self.validate_prop_set_once("_vertices")
 
         if len(point) != 3:
-            self.validateError("A position must be of the form [x, y, z] where {} was provided".format(point))
+            self.validate_error("A position must be of the form [x, y, z] where {} was provided".format(point))
         
         self._vertices = [point]
         return self
 
     def colors(self, colorArray):
-        self.validatePropSetOnce('_colors')
+        self.validate_prop_set_once('_colors')
         self._colors = colorArray
 
         return self
 
     def style(self, style):
-        self._validatePrerequisite()
-        self.validatePropSetOnce('_style')
+        self._validate_prerequisite()
+        self.validate_prop_set_once('_style')
         self._stype = style
 
         return self
 
     def id(self, identifier):
-        self._validatePrerequisite()
-        self.validatePropSetOnce('_id')
+        self._validate_prerequisite()
+        self.validate_prop_set_once('_id')
         self._id = identifier
 
         return self
 
     def classes(self, classList):
-        self._validatePrerequisite()
-        self.validatePropSetOnce('_classes')
+        self._validate_prerequisite()
+        self.validate_prop_set_once('_classes')
 
         self._classes = classList
         return self
@@ -151,16 +159,16 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
         if self._type == PRIMITIVE_TYPES.image:
             if self._image == None or self._image.data == None:
-                self.validateWarn("Stream {} image data are not provided.".format(self._streamId))
+                self.validate_warn("Stream {} image data are not provided.".format(self._stream_id))
         else:
             if self._vertices == None:
-                self.validateWarn("Stream {} primitives vertices are not provided.".format(self._streamId))
+                self.validate_warn("Stream {} primitives vertices are not provided.".format(self._stream_id))
 
     def _flush(self):
         self._validate()
-        self._flushPrimitives()
+        self._flush_primitives()
 
-    def getData(self):
+    def get_data(self):
         if self._type:
             self._flush()
 
@@ -169,28 +177,26 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
         return self._primitives
 
-    def _validatePrerequisite(self):
-        if not self._type:
-            self.validateError("Start from a primitive first, e.g polygon(), image(), etc.")
+    def _validate_prerequisite(self):
+        if self._type:
+            self.validate_error("Start from a primitive first, e.g polygon(), image(), etc.")
 
-    def _flushPrimitives(self):
-        if self._streamId not in self._primitives.keys():
-            self._primitives[self._streamId] = edict()
-        stream = self._primitives[self._streamId]
+    def _flush_primitives(self):
+        if self._stream_id not in self._primitives.keys():
+            self._primitives[self._stream_id] = edict()
+        stream = self._primitives[self._stream_id]
 
-        primitive = self._formatPrimitive()
+        array_field_name = self._type + 's'
+        if array_field_name not in stream:
+            stream[array_field_name] = []
+        array = stream[array_field_name]
 
-        arrayFieldName = self._type + 's'
-
-        if arrayFieldName not in stream:
-            stream[arrayFieldName] = []
-        array = stream[arrayFieldName]
-
-        array.push(primitive)
+        obj = self._format_primitives()
+        array.append(obj)
 
         self.reset()
 
-    def _formatPrimitive(self):
+    def _format_primitives(self):
         obj = edict()
 
         # Embed primitive data
@@ -199,7 +205,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         elif self._type == PRIMITIVE_TYPES.point:
             if self._colors:
                 obj.colors = self._colors
-            self.points = self._vertices
+            obj.points = self._vertices
         elif self._type == PRIMITIVE_TYPES.text:
             obj.position = self._vertices[0]
             obj.text = self._text
@@ -217,25 +223,25 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
             obj.update(self._image)
 
         # Embed base data
-        haveBase = False
+        have_base = False
         base = edict()
 
         if self._id:
-            haveBase = True
+            have_base = True
             base.object_id = self._id
         if self._style:
-            haveBase = True
+            have_base = True
             base.style = self._style
         if self._classes:
-            haveBase = True
+            have_base = True
             base.classes = self._classes
 
-        if haveBase:
+        if have_base:
             obj.base = base
 
         return obj
 
-    def _validateStyle(self):
+    def _validate_style(self):
         self._validator.validateStyle(self)
 
     def reset(self):

@@ -121,39 +121,43 @@ class XVIZValidator:
         self._logger = looger
 
     def warn(self, msg):
-        self._logger.warn(msg)
+        self._logger.warning(msg)
 
     def error(self, msg):
         self._logger.error(msg)
         raise ValueError("Error triggered: " + msg)
 
-    def hasProp(self, builder, prop, msg=None):
+    def has_prop(self, builder, prop, msg=None):
         if hasattr(builder, prop):
             return
         self._logger.warn(msg or "Stream {}: {} is missing"\
-            .format(builder.StreamId, prop))
+            .format(builder.stream_id, prop))
 
-    def propSetOnce(self, builder, prop, msg=None):
+    def prop_set_once(self, builder, prop, msg=None):
         if not hasattr(builder, prop):
             return
-        if len(getattr(builder, prop)) == 0:
+        val = getattr(builder, prop)
+        if not val:
+            return
+        if isinstance(val, list) and len(val) == 0:
             return
 
         self._logger.warn(msg or "Stream {}: {} has been already set."\
-            .format(builder.StreamId, prop))
+            .format(builder.stream_id, prop))
 
-    def matchMetaData(self, builder):
-        metadata = builder.Metadata
-        streamId = builder.StreamId
-        category = builder.Category
+    def match_metadata(self, builder):
+        print(type(builder))
+        metadata = builder.metadata
+        stream_id = builder.stream_id
+        category = builder.category
 
-        if metadata and hasattr(metadata):
-            streamMetadata = metadata.streams[streamId]
-            if not streamMetadata:
-                self._logger.warn("{} is not defined in metadata.".format(streamId))
+        if metadata and hasattr(metadata, "streams"):
+            stream_metadata = metadata.streams[stream_id]
+            if not stream_metadata:
+                self._logger.warning("{} is not defined in metadata.".format(stream_id))
             elif category != metadata.category:
-                self._logger.warn("Stream {} category '{}' does not match metadata definition ({})."\
-                    .format(streamId, category, streamMetadata.category))
+                self._logger.warning("Stream {} category '{}' does not match metadata definition ({})."\
+                    .format(stream_id, category, stream_metadata.category))
 
     def validateStyle(self, builder):
         properties = builder._style.keys()
@@ -162,6 +166,6 @@ class XVIZValidator:
             invalidProps = [prop for prop in properties if prop not in validProperties]
             if len(invalidProps) > 0:
                 self.warn("Invalid style properties {} for stream {}".format(
-                    ','.join(invalidProps), builder.StreamId))
+                    ','.join(invalidProps), builder.stream_id))
         else:
-            self.warn("Missing style validations for stream {} with type {}".format(builder.StreamId, builder._type))
+            self.warn("Missing style validations for stream {} with type {}".format(builder.stream_id, builder._type))

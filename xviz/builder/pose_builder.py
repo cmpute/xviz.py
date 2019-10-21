@@ -15,7 +15,16 @@ class XVIZPoseBuilder(XVIZBaseBuilder):
         self._poses = None
         self.reset()
 
-    def mapOrigin(self, longitude, latitude, altitude):
+    def reset(self):
+        super().reset()
+
+        self._category = CATEGORY.POSE
+        self._timestamp = None
+        self._map_origin = None
+        self._position = None
+        self._orientation = None
+
+    def map_origin(self, longitude, latitude, altitude):
         self._map_origin = dict(longitude=longitude, latitude=latitude, altitude=altitude)
         return self
 
@@ -35,28 +44,16 @@ class XVIZPoseBuilder(XVIZBaseBuilder):
         if not self._poses:
             self._poses = {}
 
-        data = edict()
-        if not self._timestamp:
-            data.timestamp = self._timestamp
-        if not self._map_origin:
-            data.map_origin = self._map_origin
-        if not self._position:
-            data.position = self._position
-        if not self._orientation:
-            data.orientation = self._orientation
-        self._poses[self._streamId] = data
+        data = dict(
+            timestamp = self._timestamp,
+            map_origin = self._map_origin,
+            position = self._position,
+            orientation = self._orientation,
+        )
+        self._poses[self._stream_id] = edict({k:v for k,v in data.items() if v})
 
-    def reset(self):
-        super().reset()
-
-        self._category = CATEGORY.POSE
-        self._timestamp = None
-        self._map_origin = None
-        self._position = None
-        self._orientation = None
-
-    def getData(self):
-        if self._streamId:
+    def get_data(self):
+        if self._stream_id:
             self._flush()
 
         return edict(poses=self._poses)
