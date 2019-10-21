@@ -5,7 +5,7 @@ from easydict import EasyDict as edict
 from xviz.builder.base_builder import XVIZBaseBuilder
 from xviz.builder.validator import CATEGORY, PRIMITIVE_TYPES
 
-class PrimitiveBuilder(XVIZBaseBuilder):
+class XVIZPrimitiveBuilder(XVIZBaseBuilder):
     """
     # Reference
     [@xviz/builder/xviz-primitive-builder]/(https://github.com/uber/xviz/blob/master/modules/builder/src/builders/xviz-primitive-builder.js)
@@ -111,7 +111,7 @@ class PrimitiveBuilder(XVIZBaseBuilder):
         return self
     
     def position(self, point):
-        sel.validatePropSetOnce("_vertices")
+        self.validatePropSetOnce("_vertices")
 
         if len(point) != 3:
             self.validateError("A position must be of the form [x, y, z] where {} was provided".format(point))
@@ -170,7 +170,7 @@ class PrimitiveBuilder(XVIZBaseBuilder):
         return self._primitives
 
     def _validatePrerequisite(self):
-        if self._type == None:
+        if not self._type:
             self.validateError("Start from a primitive first, e.g polygon(), image(), etc.")
 
     def _flushPrimitives(self):
@@ -187,7 +187,7 @@ class PrimitiveBuilder(XVIZBaseBuilder):
         array = stream[arrayFieldName]
 
         array.push(primitive)
-        
+
         self.reset()
 
     def _formatPrimitive(self):
@@ -197,7 +197,7 @@ class PrimitiveBuilder(XVIZBaseBuilder):
         if self._type == PRIMITIVE_TYPES.polygon or self._type == PRIMITIVE_TYPES.polyline:
             obj.vertices = self._vertices
         elif self._type == PRIMITIVE_TYPES.point:
-            if self._colors != None:
+            if self._colors:
                 obj.colors = self._colors
             self.points = self._vertices
         elif self._type == PRIMITIVE_TYPES.text:
@@ -211,7 +211,7 @@ class PrimitiveBuilder(XVIZBaseBuilder):
             obj.end = self._vertices[1]
             obj.radius = self._radius
         elif self._type == PRIMITIVE_TYPES.image:
-            if self._vertices != None:
+            if self._vertices:
                 self._image.position = self._vertices[0]
 
             obj.update(self._image)
@@ -220,13 +220,13 @@ class PrimitiveBuilder(XVIZBaseBuilder):
         haveBase = False
         base = edict()
 
-        if self._id != None:
+        if self._id:
             haveBase = True
             base.object_id = self._id
-        if self._style != None:
+        if self._style:
             haveBase = True
             base.style = self._style
-        if self._classes != None:
+        if self._classes:
             haveBase = True
             base.classes = self._classes
 
