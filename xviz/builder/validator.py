@@ -146,7 +146,6 @@ class XVIZValidator:
             .format(builder.stream_id, prop))
 
     def match_metadata(self, builder):
-        print(type(builder))
         metadata = builder.metadata
         stream_id = builder.stream_id
         category = builder.category

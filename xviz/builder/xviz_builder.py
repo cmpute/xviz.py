@@ -50,7 +50,6 @@ class XVIZBuilder:
 
     def get_message(self):
         poses = self._pose_builder.get_data().poses
-        print(poses)
         if (not poses) or (PRIMARY_POSE_STREAM not in poses):
             self._validator.error('Every message requires a %s stream' % PRIMARY_POSE_STREAM)
 

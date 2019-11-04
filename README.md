@@ -1,5 +1,9 @@
 # xviz.py
-Python implementation of xviz server
+Python implementation of XVIZ protocol. Note that this repository only comply with the protocol standard, the some of the implemented structure and modules definition are not the same. 
+
+# Requirements
+`websockets` module requires Python 3
+[`gltflib`](https://github.com/sergkr/gltflib)
 
 # Reference
 - [glTF](https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md)
