@@ -2,8 +2,8 @@ import logging
 from easydict import EasyDict as edict
 
 from xviz.builder.validator import XVIZValidator
-from xviz.builder.pose_builder import XVIZPoseBuilder
-from xviz.builder.primitive_builder import XVIZPrimitiveBuilder
+from xviz.builder.pose import XVIZPoseBuilder
+from xviz.builder.primitive import XVIZPrimitiveBuilder
 
 PRIMARY_POSE_STREAM = '/vehicle_pose'
 

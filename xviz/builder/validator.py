@@ -117,8 +117,8 @@ class XVIZValidator:
     # Reference
     [@xviz/builder/xviz-validator]/(https://github.com/uber/xviz/blob/master/modules/builder/src/builders/xviz-validator.js)
     """
-    def __init__(self, looger=logging.getLogger("xviz")):
-        self._logger = looger
+    def __init__(self, logger=logging.getLogger("xviz")):
+        self._logger = logger
 
     def warn(self, msg):
         self._logger.warning(msg)
