@@ -12,6 +12,18 @@ class XVIZBaseSession:
         '''
         raise NotImplementedError("Derived class should implement this method")
 
+    def on_disconnect(self):
+        '''
+        This method is called when server is disconnected
+        '''
+        raise NotImplementedError("Derived class should implement this method")
+
+    async def main(self):
+        '''
+        This method is called as main loop for this session. Do not block this function!
+        '''
+        raise NotImplementedError("Derived class should implement this method")
+
 class XVIZProviderSession(XVIZBaseSession):
     '''
     This class holds a `provider` session, where the provider handles data I/O

@@ -1,6 +1,7 @@
 import asyncio
-import websockets
 import logging
+import websockets
+from websockets.exceptions import ConnectionClosed
 
 class XVIZServer:
     def __init__(self, handlers, port=3000, per_message_deflate=True):
@@ -15,10 +16,11 @@ class XVIZServer:
             self._handlers = handlers
 
         self._logger = logging.getLogger("xviz-server")
+        self._connections = []
 
         compression = "deflate" if per_message_deflate else None
-        self._server_loop = websockets.serve(self.handle_session, "localhost", port,
-                                             compression=compression)
+        self._serve_options = dict(ws_handler=self.handle_session,
+            host="localhost", port=port, compression=compression)
 
     async def handle_session(self, socket, request):
         '''
@@ -35,14 +37,19 @@ class XVIZServer:
 
         # find proper handler
         for handler in self._handlers:
-            session = await handler(socket, params)
+            session = handler(socket, params)
             if session:
                 session.on_connect()
-                return
+                try:
+                    await session.main()
+                except ConnectionClosed:
+                    self._logger.info("[> Disconnected]")
+                    session.on_disconnect()
+                finally:
+                    return
 
-        socket.close()
+        await socket.close()
         self._logger.info("[> Connection] closed due to no handler found")
 
-    def start(self):
-        asyncio.get_event_loop().run_until_complete(self._server_loop)
-        asyncio.get_event_loop().run_forever()
+    def serve(self):
+        return websockets.serve(**self._serve_options)
