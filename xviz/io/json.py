@@ -1,22 +1,7 @@
+from .base import XVIZBaseWriter
 from easydict import EasyDict
 import base64
 import numpy as np
-
-class XVIZBaseWriter:
-    def __init__(self, sink):
-        '''
-        :param sink: file-like object
-        '''
-        self.sink = sink
-
-    def close(self):
-        if self.sink:
-            self.sink.close()
-            self.sink = None
-
-    def _check_valid(self):
-        if not self.sink:
-            raise ValueError("The writer has been closed!")
 
 class XVIZJsonWriter(XVIZBaseWriter):
     def __init__(self, sink, envelope=True, precision=10, as_array_buffer=False):
@@ -70,4 +55,3 @@ class XVIZJsonWriter(XVIZBaseWriter):
             return new_obj
 
         return obj
-        

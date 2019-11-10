@@ -24,11 +24,20 @@ class XVIZBaseSession:
         '''
         raise NotImplementedError("Derived class should implement this method")
 
-class XVIZProviderSession(XVIZBaseSession):
+class XVIZLogPlaySession(XVIZBaseSession):
     '''
-    This class holds a `provider` session, where the provider handles data I/O
+    This class holds a session playing autonomy data from files
     '''
-    def __init__(self, socket, request, provider, logger=None, **options):
+    def __init__(self, socket, request, reader, logger=None):
         super().__init__(socket, request, logger)
-        self._provider = provider
+        self._reader = reader
+
+    def on_connect(self):
+        print("LogPlayer connected!")
+
+    def on_disconnect(self):
+        print("LogPlayer disconnected!")
+
+    async def main(self):
+        raise NotImplementedError() # TODO: read data and send to client
         

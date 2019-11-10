@@ -1,3 +1,4 @@
+from easydict import EasyDict as edict
 import asyncio
 import logging
 import websockets
@@ -32,8 +33,8 @@ class XVIZServer:
         else:
             path, params = request, ""
         params = [item.split("=") for item in params.split("&") if "=" in item]
-        params = {k:v for k, v in params}
-        params['path'] = path
+        params = edict({k:v for k, v in params})
+        params.path = path
 
         # find proper handler
         for handler in self._handlers:
