@@ -2,7 +2,8 @@ import logging
 from easydict import EasyDict as edict
 import numpy as np
 
-from .validator import CATEGORY, XVIZValidator
+from xviz.builder.base_builder import CATEGORY
+from xviz.builder.validator import XVIZValidator
 
 class XVIZMetadataBuilder:
     def __init__(self, logger=logging.getLogger("xviz")):

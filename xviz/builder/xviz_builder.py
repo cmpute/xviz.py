@@ -5,6 +5,8 @@ from xviz.builder.validator import XVIZValidator
 from xviz.builder.pose import XVIZPoseBuilder
 from xviz.builder.primitive import XVIZPrimitiveBuilder
 from xviz.builder.variable import XVIZVariableBuilder
+from xviz.v2.core_pb2 import StreamSet
+from google.protobuf.json_format import MessageToDict
 
 PRIMARY_POSE_STREAM = '/vehicle_pose'
 
@@ -47,24 +49,23 @@ class XVIZBuilder:
         self._stream_builder = None
 
     def get_message(self):
-        poses = self._pose_builder.get_data().poses
+        poses = self._pose_builder.get_data()
         if (not poses) or (PRIMARY_POSE_STREAM not in poses):
             self._validator.error('Every message requires a %s stream' % PRIMARY_POSE_STREAM)
 
-        data = dict(
-            timestamp = poses[PRIMARY_POSE_STREAM].timestamp, # TODO: is timestamp required?
-            poses = poses,
-            primitives = self._primitives_builder.get_data(),
+        data = StreamSet(
+            timestamp=poses[PRIMARY_POSE_STREAM].timestamp, # TODO: is timestamp required?
+            poses=poses,
+            primitives=self._primitives_builder.get_data(),
             # futures = self._future_instance_builder.get_data(),
-            variables = self._variables_builder.get_data(),
+            variables=self._variables_builder.get_data(),
             # time_series = self._time_series_builder.get_data(),
             # ui_primitives = self._ui_primitives_builder.get_data(),
         )
-        data = edict({k:v for k,v in data.items() if v})
 
         message = dict(
             update_type = 'SNAPSHOT',
-            updates = [data]
+            updates = [MessageToDict(data)] # TODO: pass raw data
         )
 
         return message

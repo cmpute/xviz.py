@@ -1,7 +1,5 @@
-from easydict import EasyDict as edict
-
-from xviz.builder.base_builder import XVIZBaseBuilder
-from xviz.builder.validator import CATEGORY
+from xviz.builder.base_builder import XVIZBaseBuilder, CATEGORY
+from xviz.v2.core_pb2 import Variable, VariableState
 
 class XVIZVariableBuilder(XVIZBaseBuilder):
     def __init__(self, metadata, validator):
@@ -33,31 +31,35 @@ class XVIZVariableBuilder(XVIZBaseBuilder):
         if not self._data:
             return None
 
-        return edict(self._data)
+        return self._data
 
     def _add_variable_entry(self):
         if not self._data_pending():
             return
 
-        field_name = 'doubles'
+        entry = Variable()
         value = self._values[0]
         if isinstance(value, str):
-            field_name = 'strings'
+            entry.strings.extend(self._values) 
         elif isinstance(value, bool):
-            field_name = 'bools'
-
-        entry = edict(values={field_name: self._values})
+            entry.bools.extend(self._values)
+        elif isinstance(value, int):
+            entry.int32s.extend(self._values)
+        elif isinstance(value, float):
+            entry.doubles.extend(self._values)
+        else:
+            self.validate_error("The type of input value is not recognized!")
         if self._id:
-            entry.base = edict(object_id=self._id)
+            entry.base.object_id = self._id
 
         if self._stream_id in self._data.keys():
             if self._id in self._data[self._stream_id]:
                 self.validate_error("Input `values` already set for id %s" % self._id)
             else:
-                self._data[self._stream_id][self._id] = entry
+                self._data[self._stream_id].variables[self._id] = entry
         else:
-            id_entry = edict()
-            id_entry[self._id] = entry
+            id_entry = VariableState()
+            id_entry.variables[self._id] = entry
             self._data[self._stream_id] = id_entry
 
     def _data_pending(self):

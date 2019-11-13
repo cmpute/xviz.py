@@ -2,8 +2,9 @@
 import numpy as np
 from easydict import EasyDict as edict
 
-from xviz.builder.base_builder import XVIZBaseBuilder
-from xviz.builder.validator import CATEGORY, PRIMITIVE_TYPES
+from xviz.builder.base_builder import XVIZBaseBuilder, build_style, CATEGORY, PRIMITIVE_TYPES
+from xviz.v2.core_pb2 import PrimitiveState
+from xviz.v2.primitives_pb2 import PrimitiveBase, Circle, Image, Point, Polygon, Polyline, Stadium, Text
 
 class XVIZPrimitiveBuilder(XVIZBaseBuilder):
     """
@@ -15,7 +16,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
     def __init__(self, metadata, validator):
         super().__init__(CATEGORY.PRIMITIVE, metadata, validator)
 
-        self._primitives = edict()
+        self._primitives = {}
         self.reset()
 
     def image(self, data):
@@ -30,7 +31,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
             self.validate_error("An image data must be a string or numpy array")
         self.validate_prop_set_once("_image")
         self._type = PRIMITIVE_TYPES.image
-        self._image = edict(data=data)
+        self._image = Image(data=data)
 
         return self
 
@@ -183,13 +184,11 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
     def _flush_primitives(self):
         if self._stream_id not in self._primitives.keys():
-            self._primitives[self._stream_id] = edict()
+            self._primitives[self._stream_id] = PrimitiveState()
         stream = self._primitives[self._stream_id]
 
         array_field_name = self._type + 's'
-        if array_field_name not in stream:
-            stream[array_field_name] = []
-        array = stream[array_field_name]
+        array = getattr(stream, array_field_name)
 
         obj = self._format_primitives()
         array.append(obj)
@@ -197,47 +196,49 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         self.reset()
 
     def _format_primitives(self):
-        obj = edict()
+        # Flatten arrays
+        # TODO: restore the array shape when converted to JSON
+        if self._vertices:
+            self._vertices = [item for sublist in self._vertices for item in sublist]
+        if self._colors:
+            self._colors = [item for sublist in self._colors for item in sublist]
 
         # Embed primitive data
-        if self._type == PRIMITIVE_TYPES.polygon or self._type == PRIMITIVE_TYPES.polyline:
-            obj.vertices = self._vertices
+        if self._type == PRIMITIVE_TYPES.polygon:
+            obj = Polygon(vertices=self._vertices)
+        elif self._type == PRIMITIVE_TYPES.polyline:
+            obj = Polyline(vertices=self._vertices)
         elif self._type == PRIMITIVE_TYPES.point:
+            obj = Point(points=self._vertices)
             if self._colors:
-                obj.colors = self._colors
-            obj.points = self._vertices
+                obj.colors.extend(self._colors)
         elif self._type == PRIMITIVE_TYPES.text:
-            obj.position = self._vertices[0]
-            obj.text = self._text
+            obj = Text(position=self._vertices[0], text=self._text)
         elif self._type == PRIMITIVE_TYPES.circle:
-            obj.center = self._vertices[0]
-            obj.radius = self._radius
+            obj = Circle(center=self._vertices[0], radius=self._radius)
         elif self._type == PRIMITIVE_TYPES.stadium:
-            obj.start = self._vertices[0]
-            obj.end = self._vertices[1]
-            obj.radius = self._radius
+            obj = Stadium(start=self._vertices[0], end=self._vertices[1], radius=self._radius)
         elif self._type == PRIMITIVE_TYPES.image:
             if self._vertices:
                 self._image.position = self._vertices[0]
-
-            obj.update(self._image)
+            obj = self._image
 
         # Embed base data
         have_base = False
-        base = edict()
+        base = PrimitiveBase()
 
         if self._id:
             have_base = True
             base.object_id = self._id
         if self._style:
             have_base = True
-            base.style = self._style
+            base.style.MergeFrom(build_style(self._style))
         if self._classes:
             have_base = True
             base.classes = self._classes
 
         if have_base:
-            obj.base = base
+            obj.base.MergeFrom(base)
 
         return obj
 
