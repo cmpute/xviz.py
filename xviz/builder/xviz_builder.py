@@ -4,6 +4,7 @@ from easydict import EasyDict as edict
 from xviz.builder.validator import XVIZValidator
 from xviz.builder.pose import XVIZPoseBuilder
 from xviz.builder.primitive import XVIZPrimitiveBuilder
+from xviz.builder.variable import XVIZVariableBuilder
 
 PRIMARY_POSE_STREAM = '/vehicle_pose'
 
@@ -16,7 +17,7 @@ class XVIZBuilder:
         self._stream_builder = None
 
         self._pose_builder = XVIZPoseBuilder(self.metadata, self._validator)
-        # self._variables_builder = XVIZVariableBuilder(self.metadata, self._validator)
+        self._variables_builder = XVIZVariableBuilder(self.metadata, self._validator)
         self._primitives_builder = XVIZPrimitiveBuilder(self.metadata, self._validator)
         # self._future_instance_builder = XVIZFutureInstanceBuilder(self.metadata, self._validator)
         # self._ui_primitives_builder = XVIZUIPrimitiveBuilder(self.metadata, self._validator)
@@ -55,7 +56,7 @@ class XVIZBuilder:
             poses = poses,
             primitives = self._primitives_builder.get_data(),
             # futures = self._future_instance_builder.get_data(),
-            # variables = self._variables_builder.get_data(),
+            variables = self._variables_builder.get_data(),
             # time_series = self._time_series_builder.get_data(),
             # ui_primitives = self._ui_primitives_builder.get_data(),
         )

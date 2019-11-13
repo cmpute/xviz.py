@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
     DESCR = fh.read()
@@ -11,6 +11,6 @@ setup(
     author_email='cmpute@gmail.com',
     url="https://github.com/cmpute/xviz.py",
     long_description=DESCR,
-    packages=['xviz'],
-    install_requires=['numpy', 'easydict'],
+    packages=find_packages(),
+    install_requires=['numpy', 'easydict', 'protobuf'],
 )

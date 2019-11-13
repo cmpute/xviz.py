@@ -136,7 +136,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
     def style(self, style):
         self._validate_prerequisite()
         self.validate_prop_set_once('_style')
-        self._stype = style
+        self._style = style
 
         return self
 
@@ -178,7 +178,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         return self._primitives
 
     def _validate_prerequisite(self):
-        if self._type:
+        if not self._type:
             self.validate_error("Start from a primitive first, e.g polygon(), image(), etc.")
 
     def _flush_primitives(self):

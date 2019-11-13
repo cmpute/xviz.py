@@ -34,7 +34,7 @@ class XVIZJsonWriter(XVIZBaseWriter):
             return [self.convert_json(item, key_name, nested_depth+1) for item in obj]
 
         if isinstance(obj, np.ndarray):
-            if (not(key_name == "vertices" or key_name = "points") or nested_depth > 0):
+            if (not(key_name == "vertices" or key_name == "points") or nested_depth > 0):
                 return obj.tolist()
 
             if len(obj) % 3 != 0:
