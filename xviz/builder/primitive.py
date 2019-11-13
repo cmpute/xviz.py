@@ -190,12 +190,12 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         array_field_name = PRIMITIVE_TYPES.Name(self._type).lower() + 's'
         array = getattr(stream, array_field_name)
 
-        obj = self._format_primitives()
+        obj = self._format_primitive()
         array.append(obj)
 
         self.reset()
 
-    def _format_primitives(self):
+    def _format_primitive(self):
         # Flatten arrays
         if self._vertices:
             self._vertices = [item for sublist in self._vertices for item in sublist]

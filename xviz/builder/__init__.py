@@ -6,10 +6,12 @@ This module contains classes to build messages for the XVIZ protocol.
 """
 
 from .base_builder import XVIZBaseBuilder
+from .xviz_builder import XVIZBuilder
+
 from .metadata import XVIZMetadataBuilder
 from .pose import XVIZPoseBuilder
 from .primitive import XVIZPrimitiveBuilder
 from .time_series import XVIZTimeSeriesBuilder
 from .ui_primitive import XVIZUIPrimitiveBuilder
 from .variable import XVIZVariableBuilder
-from .xviz_builder import XVIZBuilder
+from .link import XVIZLinkBuilder

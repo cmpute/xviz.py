@@ -2,6 +2,9 @@ import logging
 from easydict import EasyDict as edict
 
 from xviz.message import XVIZData
+
+from xviz.builder.link import XVIZLinkBuilder
+from xviz.builder.future_instance import XVIZFutureInstanceBuilder
 from xviz.builder.pose import XVIZPoseBuilder
 from xviz.builder.primitive import XVIZPrimitiveBuilder
 from xviz.builder.variable import XVIZVariableBuilder
@@ -21,11 +24,11 @@ class XVIZBuilder:
         self._disable_streams = disable_streams or []
         self._stream_builder = None
 
-        # self._links_builder = XVIZLinkBuilder(self._metadata, self._logger)
+        self._links_builder = XVIZLinkBuilder(self._metadata, self._logger)
         self._pose_builder = XVIZPoseBuilder(self._metadata, self._logger)
         self._variables_builder = XVIZVariableBuilder(self._metadata, self._logger)
         self._primitives_builder = XVIZPrimitiveBuilder(self._metadata, self._logger)
-        # self._future_instance_builder = XVIZFutureInstanceBuilder(self._metadata, self._logger)
+        self._future_instance_builder = XVIZFutureInstanceBuilder(self._metadata, self._logger)
         self._ui_primitives_builder = XVIZUIPrimitiveBuilder(self._metadata, self._logger)
         self._time_series_builder = XVIZTimeSeriesBuilder(self._metadata, self._logger)
 
@@ -42,7 +45,9 @@ class XVIZBuilder:
         return self._stream_builder
 
     def future_instance(self, stream_id, timestamp):
-        pass
+        self._stream_builder = self._future_instance_builder.stream(stream_id)
+        self._stream_builder.timestamp(timestamp)
+        return self._stream_builder
 
     def ui_primitives(self, stream_id):
         self._stream_builder = self._ui_primitives_builder.stream(stream_id)
@@ -53,7 +58,8 @@ class XVIZBuilder:
         return self._stream_builder
 
     def link(self, parent, child):
-        pass
+        self._stream_builder = self._links_builder.stream(child).parent(parent)
+        return self._stream_builder
 
     def _reset(self):
         self._stream_builder = None
@@ -67,11 +73,11 @@ class XVIZBuilder:
             timestamp=poses[PRIMARY_POSE_STREAM].timestamp, # FIXME: is timestamp required?
             poses=poses,
             primitives=self._primitives_builder.get_data(),
-            # futures=self._future_instance_builder.get_data(),
+            future_instances=self._future_instance_builder.get_data(),
             variables=self._variables_builder.get_data(),
             time_series=self._time_series_builder.get_data(),
             ui_primitives=self._ui_primitives_builder.get_data(),
-            # links=self._link_builder.get_data()
+            links=self._links_builder.get_data()
         ))
 
         return data

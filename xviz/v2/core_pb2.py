@@ -24,7 +24,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='xviz.v2',
   syntax='proto3',
   serialized_options=_b('\n\013com.xviz.v2B\tCoreProtoP\001Z\004v2pb\242\002\004XVIZ\252\002\007xviz.V2\312\002\007Xviz\\V2'),
-  serialized_pb=_b('\n\x12xviz/v2/core.proto\x12\x07xviz.v2\x1a\x18xviz/v2/annotation.proto\x1a\x15xviz/v2/options.proto\x1a\x18xviz/v2/primitives.proto\x1a\x1axviz/v2/uiprimitives.proto\"\x94\x07\n\tStreamSet\x12\x11\n\ttimestamp\x18\x01 \x01(\x01\x12,\n\x05poses\x18\x02 \x03(\x0b\x32\x1d.xviz.v2.StreamSet.PosesEntry\x12\x36\n\nprimitives\x18\x03 \x03(\x0b\x32\".xviz.v2.StreamSet.PrimitivesEntry\x12-\n\x0btime_series\x18\x04 \x03(\x0b\x32\x18.xviz.v2.TimeSeriesState\x12\x41\n\x10\x66uture_instances\x18\x06 \x03(\x0b\x32\'.xviz.v2.StreamSet.FutureInstancesEntry\x12\x34\n\tvariables\x18\x07 \x03(\x0b\x32!.xviz.v2.StreamSet.VariablesEntry\x12\x38\n\x0b\x61nnotations\x18\x08 \x03(\x0b\x32#.xviz.v2.StreamSet.AnnotationsEntry\x12;\n\rui_primitives\x18\t \x03(\x0b\x32$.xviz.v2.StreamSet.UiPrimitivesEntry\x12\x17\n\x0fno_data_streams\x18\n \x03(\t\x1a;\n\nPosesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.xviz.v2.Pose:\x02\x38\x01\x1aJ\n\x0fPrimitivesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.xviz.v2.PrimitiveState:\x02\x38\x01\x1aP\n\x14\x46utureInstancesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\'\n\x05value\x18\x02 \x01(\x0b\x32\x18.xviz.v2.FutureInstances:\x02\x38\x01\x1aH\n\x0eVariablesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12%\n\x05value\x18\x02 \x01(\x0b\x32\x16.xviz.v2.VariableState:\x02\x38\x01\x1aL\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\'\n\x05value\x18\x02 \x01(\x0b\x32\x18.xviz.v2.AnnotationState:\x02\x38\x01\x1aN\n\x11UiPrimitivesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12(\n\x05value\x18\x02 \x01(\x0b\x32\x19.xviz.v2.UIPrimitiveState:\x02\x38\x01:\x13\xc2\xbb\x1a\x0f\x63ore/stream_set\"w\n\x04Pose\x12\x11\n\ttimestamp\x18\x01 \x01(\x01\x12&\n\nmap_origin\x18\x02 \x01(\x0b\x32\x12.xviz.v2.MapOrigin\x12\x10\n\x08position\x18\x03 \x03(\x01\x12\x13\n\x0borientation\x18\x04 \x03(\x01:\r\xc2\xbb\x1a\tcore/pose\"B\n\tMapOrigin\x12\x11\n\tlongitude\x18\x01 \x01(\x01\x12\x10\n\x08latitude\x18\x02 \x01(\x01\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x01\"\x98\x02\n\x0ePrimitiveState\x12\"\n\x08polygons\x18\x01 \x03(\x0b\x32\x10.xviz.v2.Polygon\x12$\n\tpolylines\x18\x02 \x03(\x0b\x32\x11.xviz.v2.Polyline\x12\x1c\n\x05texts\x18\x03 \x03(\x0b\x32\r.xviz.v2.Text\x12 \n\x07\x63ircles\x18\x04 \x03(\x0b\x32\x0f.xviz.v2.Circle\x12\x1e\n\x06points\x18\x05 \x03(\x0b\x32\x0e.xviz.v2.Point\x12\"\n\x08stadiums\x18\x06 \x03(\x0b\x32\x10.xviz.v2.Stadium\x12\x1e\n\x06images\x18\x07 \x03(\x0b\x32\x0e.xviz.v2.Image:\x18\xc2\xbb\x1a\x14\x63ore/primitive_state\"V\n\x10UIPrimitiveState\x12%\n\ttreetable\x18\x01 \x01(\x0b\x32\x12.xviz.v2.TreeTable:\x1b\xc2\xbb\x1a\x17\x63ore/ui_primitive_state\"\x84\x01\n\x0fTimeSeriesState\x12\x11\n\ttimestamp\x18\x01 \x01(\x01\x12\x11\n\tobject_id\x18\x02 \x01(\t\x12\x0f\n\x07streams\x18\x03 \x03(\t\x12\x1f\n\x06values\x18\x04 \x01(\x0b\x32\x0f.xviz.v2.Values:\x19\xc2\xbb\x1a\x15\x63ore/timeseries_state\"m\n\x0f\x46utureInstances\x12\x12\n\ntimestamps\x18\x01 \x03(\x01\x12+\n\nprimitives\x18\x02 \x03(\x0b\x32\x17.xviz.v2.PrimitiveState:\x19\xc2\xbb\x1a\x15\x63ore/future_instances\"N\n\rVariableState\x12$\n\tvariables\x18\x01 \x03(\x0b\x32\x11.xviz.v2.Variable:\x17\xc2\xbb\x1a\x13\x63ore/variable_state\"N\n\x0f\x41nnotationState\x12 \n\x07visuals\x18\x01 \x03(\x0b\x32\x0f.xviz.v2.Visual:\x19\xc2\xbb\x1a\x15\x63ore/annotation_state\"c\n\x08Variable\x12#\n\x04\x62\x61se\x18\x01 \x01(\x0b\x32\x15.xviz.v2.VariableBase\x12\x1f\n\x06values\x18\x02 \x01(\x0b\x32\x0f.xviz.v2.Values:\x11\xc2\xbb\x1a\rcore/variable\"!\n\x0cVariableBase\x12\x11\n\tobject_id\x18\x01 \x01(\t\"Z\n\x06Values\x12\x0f\n\x07\x64oubles\x18\x02 \x03(\x01\x12\x0e\n\x06int32s\x18\x03 \x03(\x05\x12\r\n\x05\x62ools\x18\x04 \x03(\x08\x12\x0f\n\x07strings\x18\x05 \x03(\t:\x0f\xc2\xbb\x1a\x0b\x63ore/valuesB;\n\x0b\x63om.xviz.v2B\tCoreProtoP\x01Z\x04v2pb\xa2\x02\x04XVIZ\xaa\x02\x07xviz.V2\xca\x02\x07Xviz\\V2b\x06proto3')
+  serialized_pb=_b('\n\x12xviz/v2/core.proto\x12\x07xviz.v2\x1a\x18xviz/v2/annotation.proto\x1a\x15xviz/v2/options.proto\x1a\x18xviz/v2/primitives.proto\x1a\x1axviz/v2/uiprimitives.proto\"\xff\x07\n\tStreamSet\x12\x11\n\ttimestamp\x18\x01 \x01(\x01\x12,\n\x05poses\x18\x02 \x03(\x0b\x32\x1d.xviz.v2.StreamSet.PosesEntry\x12\x36\n\nprimitives\x18\x03 \x03(\x0b\x32\".xviz.v2.StreamSet.PrimitivesEntry\x12-\n\x0btime_series\x18\x04 \x03(\x0b\x32\x18.xviz.v2.TimeSeriesState\x12\x41\n\x10\x66uture_instances\x18\x06 \x03(\x0b\x32\'.xviz.v2.StreamSet.FutureInstancesEntry\x12\x34\n\tvariables\x18\x07 \x03(\x0b\x32!.xviz.v2.StreamSet.VariablesEntry\x12\x38\n\x0b\x61nnotations\x18\x08 \x03(\x0b\x32#.xviz.v2.StreamSet.AnnotationsEntry\x12;\n\rui_primitives\x18\t \x03(\x0b\x32$.xviz.v2.StreamSet.UiPrimitivesEntry\x12\x17\n\x0fno_data_streams\x18\n \x03(\t\x12,\n\x05links\x18\x0b \x03(\x0b\x32\x1d.xviz.v2.StreamSet.LinksEntry\x1a;\n\nPosesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.xviz.v2.Pose:\x02\x38\x01\x1aJ\n\x0fPrimitivesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.xviz.v2.PrimitiveState:\x02\x38\x01\x1aP\n\x14\x46utureInstancesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\'\n\x05value\x18\x02 \x01(\x0b\x32\x18.xviz.v2.FutureInstances:\x02\x38\x01\x1aH\n\x0eVariablesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12%\n\x05value\x18\x02 \x01(\x0b\x32\x16.xviz.v2.VariableState:\x02\x38\x01\x1aL\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\'\n\x05value\x18\x02 \x01(\x0b\x32\x18.xviz.v2.AnnotationState:\x02\x38\x01\x1aN\n\x11UiPrimitivesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12(\n\x05value\x18\x02 \x01(\x0b\x32\x19.xviz.v2.UIPrimitiveState:\x02\x38\x01\x1a;\n\nLinksEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1c\n\x05value\x18\x02 \x01(\x0b\x32\r.xviz.v2.Link:\x02\x38\x01:\x13\xc2\xbb\x1a\x0f\x63ore/stream_set\"w\n\x04Pose\x12\x11\n\ttimestamp\x18\x01 \x01(\x01\x12&\n\nmap_origin\x18\x02 \x01(\x0b\x32\x12.xviz.v2.MapOrigin\x12\x10\n\x08position\x18\x03 \x03(\x01\x12\x13\n\x0borientation\x18\x04 \x03(\x01:\r\xc2\xbb\x1a\tcore/pose\"B\n\tMapOrigin\x12\x11\n\tlongitude\x18\x01 \x01(\x01\x12\x10\n\x08latitude\x18\x02 \x01(\x01\x12\x10\n\x08\x61ltitude\x18\x03 \x01(\x01\"\x98\x02\n\x0ePrimitiveState\x12\"\n\x08polygons\x18\x01 \x03(\x0b\x32\x10.xviz.v2.Polygon\x12$\n\tpolylines\x18\x02 \x03(\x0b\x32\x11.xviz.v2.Polyline\x12\x1c\n\x05texts\x18\x03 \x03(\x0b\x32\r.xviz.v2.Text\x12 \n\x07\x63ircles\x18\x04 \x03(\x0b\x32\x0f.xviz.v2.Circle\x12\x1e\n\x06points\x18\x05 \x03(\x0b\x32\x0e.xviz.v2.Point\x12\"\n\x08stadiums\x18\x06 \x03(\x0b\x32\x10.xviz.v2.Stadium\x12\x1e\n\x06images\x18\x07 \x03(\x0b\x32\x0e.xviz.v2.Image:\x18\xc2\xbb\x1a\x14\x63ore/primitive_state\"V\n\x10UIPrimitiveState\x12%\n\ttreetable\x18\x01 \x01(\x0b\x32\x12.xviz.v2.TreeTable:\x1b\xc2\xbb\x1a\x17\x63ore/ui_primitive_state\"\x84\x01\n\x0fTimeSeriesState\x12\x11\n\ttimestamp\x18\x01 \x01(\x01\x12\x11\n\tobject_id\x18\x02 \x01(\t\x12\x0f\n\x07streams\x18\x03 \x03(\t\x12\x1f\n\x06values\x18\x04 \x01(\x0b\x32\x0f.xviz.v2.Values:\x19\xc2\xbb\x1a\x15\x63ore/timeseries_state\"m\n\x0f\x46utureInstances\x12\x12\n\ntimestamps\x18\x01 \x03(\x01\x12+\n\nprimitives\x18\x02 \x03(\x0b\x32\x17.xviz.v2.PrimitiveState:\x19\xc2\xbb\x1a\x15\x63ore/future_instances\"N\n\rVariableState\x12$\n\tvariables\x18\x01 \x03(\x0b\x32\x11.xviz.v2.Variable:\x17\xc2\xbb\x1a\x13\x63ore/variable_state\"N\n\x0f\x41nnotationState\x12 \n\x07visuals\x18\x01 \x03(\x0b\x32\x0f.xviz.v2.Visual:\x19\xc2\xbb\x1a\x15\x63ore/annotation_state\"c\n\x08Variable\x12#\n\x04\x62\x61se\x18\x01 \x01(\x0b\x32\x15.xviz.v2.VariableBase\x12\x1f\n\x06values\x18\x02 \x01(\x0b\x32\x0f.xviz.v2.Values:\x11\xc2\xbb\x1a\rcore/variable\"!\n\x0cVariableBase\x12\x11\n\tobject_id\x18\x01 \x01(\t\"Z\n\x06Values\x12\x0f\n\x07\x64oubles\x18\x02 \x03(\x01\x12\x0e\n\x06int32s\x18\x03 \x03(\x05\x12\r\n\x05\x62ools\x18\x04 \x03(\x08\x12\x0f\n\x07strings\x18\x05 \x03(\t:\x0f\xc2\xbb\x1a\x0b\x63ore/values\"0\n\x04Link\x12\x13\n\x0btarget_pose\x18\x01 \x01(\t:\x13\xc2\xbb\x1a\x0f\x63ore/link_stateB;\n\x0b\x63om.xviz.v2B\tCoreProtoP\x01Z\x04v2pb\xa2\x02\x04XVIZ\xaa\x02\x07xviz.V2\xca\x02\x07Xviz\\V2b\x06proto3')
   ,
   dependencies=[xviz_dot_v2_dot_annotation__pb2.DESCRIPTOR,xviz_dot_v2_dot_options__pb2.DESCRIPTOR,xviz_dot_v2_dot_primitives__pb2.DESCRIPTOR,xviz_dot_v2_dot_uiprimitives__pb2.DESCRIPTOR,])
 
@@ -64,8 +64,8 @@ _STREAMSET_POSESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=581,
-  serialized_end=640,
+  serialized_start=627,
+  serialized_end=686,
 )
 
 _STREAMSET_PRIMITIVESENTRY = _descriptor.Descriptor(
@@ -101,8 +101,8 @@ _STREAMSET_PRIMITIVESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=642,
-  serialized_end=716,
+  serialized_start=688,
+  serialized_end=762,
 )
 
 _STREAMSET_FUTUREINSTANCESENTRY = _descriptor.Descriptor(
@@ -138,8 +138,8 @@ _STREAMSET_FUTUREINSTANCESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=718,
-  serialized_end=798,
+  serialized_start=764,
+  serialized_end=844,
 )
 
 _STREAMSET_VARIABLESENTRY = _descriptor.Descriptor(
@@ -175,8 +175,8 @@ _STREAMSET_VARIABLESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=800,
-  serialized_end=872,
+  serialized_start=846,
+  serialized_end=918,
 )
 
 _STREAMSET_ANNOTATIONSENTRY = _descriptor.Descriptor(
@@ -212,8 +212,8 @@ _STREAMSET_ANNOTATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=874,
-  serialized_end=950,
+  serialized_start=920,
+  serialized_end=996,
 )
 
 _STREAMSET_UIPRIMITIVESENTRY = _descriptor.Descriptor(
@@ -249,8 +249,45 @@ _STREAMSET_UIPRIMITIVESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=952,
-  serialized_end=1030,
+  serialized_start=998,
+  serialized_end=1076,
+)
+
+_STREAMSET_LINKSENTRY = _descriptor.Descriptor(
+  name='LinksEntry',
+  full_name='xviz.v2.StreamSet.LinksEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='xviz.v2.StreamSet.LinksEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='xviz.v2.StreamSet.LinksEntry.value', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=_b('8\001'),
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1078,
+  serialized_end=1137,
 )
 
 _STREAMSET = _descriptor.Descriptor(
@@ -323,10 +360,17 @@ _STREAMSET = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='links', full_name='xviz.v2.StreamSet.links', index=9,
+      number=11, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
-  nested_types=[_STREAMSET_POSESENTRY, _STREAMSET_PRIMITIVESENTRY, _STREAMSET_FUTUREINSTANCESENTRY, _STREAMSET_VARIABLESENTRY, _STREAMSET_ANNOTATIONSENTRY, _STREAMSET_UIPRIMITIVESENTRY, ],
+  nested_types=[_STREAMSET_POSESENTRY, _STREAMSET_PRIMITIVESENTRY, _STREAMSET_FUTUREINSTANCESENTRY, _STREAMSET_VARIABLESENTRY, _STREAMSET_ANNOTATIONSENTRY, _STREAMSET_UIPRIMITIVESENTRY, _STREAMSET_LINKSENTRY, ],
   enum_types=[
   ],
   serialized_options=_b('\302\273\032\017core/stream_set'),
@@ -336,7 +380,7 @@ _STREAMSET = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=135,
-  serialized_end=1051,
+  serialized_end=1158,
 )
 
 
@@ -387,8 +431,8 @@ _POSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1053,
-  serialized_end=1172,
+  serialized_start=1160,
+  serialized_end=1279,
 )
 
 
@@ -432,8 +476,8 @@ _MAPORIGIN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1174,
-  serialized_end=1240,
+  serialized_start=1281,
+  serialized_end=1347,
 )
 
 
@@ -505,8 +549,8 @@ _PRIMITIVESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1243,
-  serialized_end=1523,
+  serialized_start=1350,
+  serialized_end=1630,
 )
 
 
@@ -536,8 +580,8 @@ _UIPRIMITIVESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1525,
-  serialized_end=1611,
+  serialized_start=1632,
+  serialized_end=1718,
 )
 
 
@@ -588,8 +632,8 @@ _TIMESERIESSTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1614,
-  serialized_end=1746,
+  serialized_start=1721,
+  serialized_end=1853,
 )
 
 
@@ -626,8 +670,8 @@ _FUTUREINSTANCES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1748,
-  serialized_end=1857,
+  serialized_start=1855,
+  serialized_end=1964,
 )
 
 
@@ -657,8 +701,8 @@ _VARIABLESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1859,
-  serialized_end=1937,
+  serialized_start=1966,
+  serialized_end=2044,
 )
 
 
@@ -688,8 +732,8 @@ _ANNOTATIONSTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1939,
-  serialized_end=2017,
+  serialized_start=2046,
+  serialized_end=2124,
 )
 
 
@@ -726,8 +770,8 @@ _VARIABLE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2019,
-  serialized_end=2118,
+  serialized_start=2126,
+  serialized_end=2225,
 )
 
 
@@ -757,8 +801,8 @@ _VARIABLEBASE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2120,
-  serialized_end=2153,
+  serialized_start=2227,
+  serialized_end=2260,
 )
 
 
@@ -809,8 +853,39 @@ _VALUES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2155,
-  serialized_end=2245,
+  serialized_start=2262,
+  serialized_end=2352,
+)
+
+
+_LINK = _descriptor.Descriptor(
+  name='Link',
+  full_name='xviz.v2.Link',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='target_pose', full_name='xviz.v2.Link.target_pose', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=_b('\302\273\032\017core/link_state'),
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2354,
+  serialized_end=2402,
 )
 
 _STREAMSET_POSESENTRY.fields_by_name['value'].message_type = _POSE
@@ -825,6 +900,8 @@ _STREAMSET_ANNOTATIONSENTRY.fields_by_name['value'].message_type = _ANNOTATIONST
 _STREAMSET_ANNOTATIONSENTRY.containing_type = _STREAMSET
 _STREAMSET_UIPRIMITIVESENTRY.fields_by_name['value'].message_type = _UIPRIMITIVESTATE
 _STREAMSET_UIPRIMITIVESENTRY.containing_type = _STREAMSET
+_STREAMSET_LINKSENTRY.fields_by_name['value'].message_type = _LINK
+_STREAMSET_LINKSENTRY.containing_type = _STREAMSET
 _STREAMSET.fields_by_name['poses'].message_type = _STREAMSET_POSESENTRY
 _STREAMSET.fields_by_name['primitives'].message_type = _STREAMSET_PRIMITIVESENTRY
 _STREAMSET.fields_by_name['time_series'].message_type = _TIMESERIESSTATE
@@ -832,6 +909,7 @@ _STREAMSET.fields_by_name['future_instances'].message_type = _STREAMSET_FUTUREIN
 _STREAMSET.fields_by_name['variables'].message_type = _STREAMSET_VARIABLESENTRY
 _STREAMSET.fields_by_name['annotations'].message_type = _STREAMSET_ANNOTATIONSENTRY
 _STREAMSET.fields_by_name['ui_primitives'].message_type = _STREAMSET_UIPRIMITIVESENTRY
+_STREAMSET.fields_by_name['links'].message_type = _STREAMSET_LINKSENTRY
 _POSE.fields_by_name['map_origin'].message_type = _MAPORIGIN
 _PRIMITIVESTATE.fields_by_name['polygons'].message_type = xviz_dot_v2_dot_primitives__pb2._POLYGON
 _PRIMITIVESTATE.fields_by_name['polylines'].message_type = xviz_dot_v2_dot_primitives__pb2._POLYLINE
@@ -859,6 +937,7 @@ DESCRIPTOR.message_types_by_name['AnnotationState'] = _ANNOTATIONSTATE
 DESCRIPTOR.message_types_by_name['Variable'] = _VARIABLE
 DESCRIPTOR.message_types_by_name['VariableBase'] = _VARIABLEBASE
 DESCRIPTOR.message_types_by_name['Values'] = _VALUES
+DESCRIPTOR.message_types_by_name['Link'] = _LINK
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 StreamSet = _reflection.GeneratedProtocolMessageType('StreamSet', (_message.Message,), {
@@ -904,6 +983,13 @@ StreamSet = _reflection.GeneratedProtocolMessageType('StreamSet', (_message.Mess
     # @@protoc_insertion_point(class_scope:xviz.v2.StreamSet.UiPrimitivesEntry)
     })
   ,
+
+  'LinksEntry' : _reflection.GeneratedProtocolMessageType('LinksEntry', (_message.Message,), {
+    'DESCRIPTOR' : _STREAMSET_LINKSENTRY,
+    '__module__' : 'xviz.v2.core_pb2'
+    # @@protoc_insertion_point(class_scope:xviz.v2.StreamSet.LinksEntry)
+    })
+  ,
   'DESCRIPTOR' : _STREAMSET,
   '__module__' : 'xviz.v2.core_pb2'
   # @@protoc_insertion_point(class_scope:xviz.v2.StreamSet)
@@ -915,6 +1001,7 @@ _sym_db.RegisterMessage(StreamSet.FutureInstancesEntry)
 _sym_db.RegisterMessage(StreamSet.VariablesEntry)
 _sym_db.RegisterMessage(StreamSet.AnnotationsEntry)
 _sym_db.RegisterMessage(StreamSet.UiPrimitivesEntry)
+_sym_db.RegisterMessage(StreamSet.LinksEntry)
 
 Pose = _reflection.GeneratedProtocolMessageType('Pose', (_message.Message,), {
   'DESCRIPTOR' : _POSE,
@@ -993,6 +1080,13 @@ Values = _reflection.GeneratedProtocolMessageType('Values', (_message.Message,),
   })
 _sym_db.RegisterMessage(Values)
 
+Link = _reflection.GeneratedProtocolMessageType('Link', (_message.Message,), {
+  'DESCRIPTOR' : _LINK,
+  '__module__' : 'xviz.v2.core_pb2'
+  # @@protoc_insertion_point(class_scope:xviz.v2.Link)
+  })
+_sym_db.RegisterMessage(Link)
+
 
 DESCRIPTOR._options = None
 _STREAMSET_POSESENTRY._options = None
@@ -1001,6 +1095,7 @@ _STREAMSET_FUTUREINSTANCESENTRY._options = None
 _STREAMSET_VARIABLESENTRY._options = None
 _STREAMSET_ANNOTATIONSENTRY._options = None
 _STREAMSET_UIPRIMITIVESENTRY._options = None
+_STREAMSET_LINKSENTRY._options = None
 _STREAMSET._options = None
 _POSE._options = None
 _PRIMITIVESTATE._options = None
@@ -1011,4 +1106,5 @@ _VARIABLESTATE._options = None
 _ANNOTATIONSTATE._options = None
 _VARIABLE._options = None
 _VALUES._options = None
+_LINK._options = None
 # @@protoc_insertion_point(module_scope)

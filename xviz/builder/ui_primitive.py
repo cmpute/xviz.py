@@ -49,7 +49,7 @@ class XVIZUIPrimitiveBuilder(XVIZBaseBuilder):
 
     def _flush(self):
         self._validate()
-        self._flush_primitives()
+        self._flush_primitive()
 
     def get_data(self):
         if self._type:
@@ -60,7 +60,7 @@ class XVIZUIPrimitiveBuilder(XVIZBaseBuilder):
 
         return None
 
-    def _flush_primitives(self):
+    def _flush_primitive(self):
         if self._type == UIPRIMITIVE_TYPES.TREETABLE:
 
             if self._stream_id not in self._primitives:
