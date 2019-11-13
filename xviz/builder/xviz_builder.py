@@ -1,10 +1,12 @@
 import logging
 from easydict import EasyDict as edict
 
+from xviz.message import XVIZData
 from xviz.builder.validator import XVIZValidator
 from xviz.builder.pose import XVIZPoseBuilder
 from xviz.builder.primitive import XVIZPrimitiveBuilder
 from xviz.builder.variable import XVIZVariableBuilder
+
 from xviz.v2.core_pb2 import StreamSet
 from google.protobuf.json_format import MessageToDict
 
@@ -30,7 +32,8 @@ class XVIZBuilder:
         return self._stream_builder
 
     def variable(self, stream_id):
-        pass
+        self._stream_builder = self._variables_builder.stream(stream_id)
+        return self._stream_builder
 
     def primitive(self, stream_id):
         self._stream_builder = self._primitives_builder.stream(stream_id)
@@ -53,7 +56,7 @@ class XVIZBuilder:
         if (not poses) or (PRIMARY_POSE_STREAM not in poses):
             self._validator.error('Every message requires a %s stream' % PRIMARY_POSE_STREAM)
 
-        data = StreamSet(
+        data = XVIZData(StreamSet(
             timestamp=poses[PRIMARY_POSE_STREAM].timestamp, # TODO: is timestamp required?
             poses=poses,
             primitives=self._primitives_builder.get_data(),
@@ -61,11 +64,11 @@ class XVIZBuilder:
             variables=self._variables_builder.get_data(),
             # time_series = self._time_series_builder.get_data(),
             # ui_primitives = self._ui_primitives_builder.get_data(),
-        )
+        ))
 
         message = dict(
             update_type = 'SNAPSHOT',
-            updates = [MessageToDict(data)] # TODO: pass raw data
+            updates = [data.to_object()] # TODO: pass raw data
         )
 
         return message

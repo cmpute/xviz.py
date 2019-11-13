@@ -2,7 +2,7 @@
 import numpy as np
 from easydict import EasyDict as edict
 
-from xviz.builder.base_builder import XVIZBaseBuilder, build_style, CATEGORY, PRIMITIVE_TYPES
+from xviz.builder.base_builder import XVIZBaseBuilder, build_object_style, CATEGORY, PRIMITIVE_TYPES
 from xviz.v2.core_pb2 import PrimitiveState
 from xviz.v2.primitives_pb2 import PrimitiveBase, Circle, Image, Point, Polygon, Polyline, Stadium, Text
 
@@ -197,11 +197,10 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
     def _format_primitives(self):
         # Flatten arrays
-        # TODO: restore the array shape when converted to JSON
         if self._vertices:
             self._vertices = [item for sublist in self._vertices for item in sublist]
         if self._colors:
-            self._colors = [item for sublist in self._colors for item in sublist]
+            self._colors = bytes([item for sublist in self._colors for item in sublist])
 
         # Embed primitive data
         if self._type == PRIMITIVE_TYPES.polygon:
@@ -232,7 +231,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
             base.object_id = self._id
         if self._style:
             have_base = True
-            base.style.MergeFrom(build_style(self._style))
+            base.style.MergeFrom(build_object_style(self._style))
         if self._classes:
             have_base = True
             base.classes = self._classes

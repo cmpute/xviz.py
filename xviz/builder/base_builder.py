@@ -154,16 +154,24 @@ class XVIZBaseBuilder:
         self._validator.prop_set_once(self, prop)
 
 import array
-from xviz.v2.style_pb2 import StyleObjectValue
+from xviz.v2.style_pb2 import StyleObjectValue, StyleStreamValue
 
-def build_style(style):
+def build_object_style(style):
     '''
-    Create StyleObjectValue from dictionary. It basically deal with lists.
-    TODO: Convert back when serialize to json
+    Create StyleObjectValue from dictionary. It basically deal with list of bytes.
     '''
     if 'fill_color' in style.keys():
-        style['fill_color'] = array.array('B', style['fill_color']).tostring()
+        style['fill_color'] = bytes(style['fill_color'])
     if 'stroke_color' in style.keys():
-        style['stroke_color'] = array.array('B', style['stroke_color']).tostring()
+        style['stroke_color'] = bytes(style['stroke_color'])
     return StyleObjectValue(**style)
-    
+
+def build_stream_style(style):
+    '''
+    Create StyleStreamValue from dictionary. It basically deal with list of bytes.
+    '''
+    if 'fill_color' in style.keys():
+        style['fill_color'] = bytes(style['fill_color'])
+    if 'stroke_color' in style.keys():
+        style['stroke_color'] = bytes(style['stroke_color'])
+    return StyleStreamValue(**style)

@@ -1,3 +1,3 @@
 from .server import XVIZServer
-from .handlers import XVIZProviderHandler
-from .sessions import XVIZBaseSession, XVIZProviderSession
+from .handlers import XVIZLogPlayHandler
+from .sessions import XVIZBaseSession, XVIZLogPlaySession

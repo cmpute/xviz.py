@@ -12,5 +12,5 @@ setup(
     url="https://github.com/cmpute/xviz.py",
     long_description=DESCR,
     packages=find_packages(),
-    install_requires=['numpy', 'easydict', 'protobuf'],
+    install_requires=['numpy', 'easydict', 'protobuf', 'websockets'],
 )

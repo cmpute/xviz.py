@@ -41,6 +41,7 @@ class XVIZPoseBuilder(XVIZBaseBuilder):
             self._poses = {}
 
         self._poses[self._stream_id] = self._temp_pose
+        self._temp_pose = Pose()
 
     def get_data(self):
         if self._stream_id:
