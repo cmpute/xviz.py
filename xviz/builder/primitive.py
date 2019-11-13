@@ -34,15 +34,15 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
         return self
 
-    def dimensions(self, widthPixel=None, heightPixel=None):
+    def dimensions(self, width_pixel=None, height_pixel=None):
         '''
         Add dimension specs for image data
         '''
         if not self._image:
             self.validate_error("An image needs to be set first")
 
-        self._image.width_px = widthPixel
-        self._image.height_px = heightPixel
+        self._image.width_px = width_pixel
+        self._image.height_px = height_pixel
 
         return self
 
@@ -71,7 +71,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
             self._flush()
 
         self.validate_prop_set_once("_vertices")
-        self._vertices = vertices
+        self._vertices[:] = vertices
         self._type = PRIMITIVE_TYPES.point
 
         return self
@@ -127,9 +127,9 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         self._vertices = [point]
         return self
 
-    def colors(self, colorArray):
+    def colors(self, color_array):
         self.validate_prop_set_once('_colors')
-        self._colors = colorArray
+        self._colors = color_array
 
         return self
 
@@ -147,11 +147,11 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
         return self
 
-    def classes(self, classList):
+    def classes(self, class_list):
         self._validate_prerequisite()
         self.validate_prop_set_once('_classes')
 
-        self._classes = classList
+        self._classes = class_list
         return self
         
     def _validate(self):

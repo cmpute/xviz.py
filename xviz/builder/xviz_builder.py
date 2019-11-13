@@ -33,16 +33,13 @@ class XVIZBuilder:
         self._stream_builder = self._primitives_builder.stream(stream_id)
         return self._stream_builder
 
-    def futureInstance(self, stream_id, timestamp):
+    def future_instance(self, stream_id, timestamp):
         pass
 
-    def uiPrimitives(self, stream_id):
+    def ui_primitives(self, stream_id):
         pass
 
-    def timeSeries(self, stream_id):
-        pass
-
-    def getMessage(self):
+    def time_series(self, stream_id):
         pass
 
     def _reset(self):
