@@ -1,8 +1,7 @@
 import json
 from easydict import EasyDict as edict
 
-from xviz.builder import XVIZBuilder
-from xviz.builder.ui_primitive import XVIZUIPrimitiveBuilder
+from xviz.builder import XVIZBuilder, XVIZUIPrimitiveBuilder, XVIZTimeSeriesBuilder
 from google.protobuf.json_format import MessageToDict
 import unittest
 
@@ -137,3 +136,46 @@ class TestUIPrimitiveBuilder:
             }
         }
         assert json.dumps(data['ui_primitives'], sort_keys=True) == json.dumps(expected, sort_keys=True)
+
+class TestTimeSeriesBuilder:
+    def test_null(self):
+        builder = XVIZTimeSeriesBuilder(None, None)
+        data = builder.stream('/test').get_data()
+
+        assert data is None
+
+    def test_single_entry(self):
+        builder = XVIZBuilder()
+        setup_pose(builder)
+
+        builder.time_series('/test')\
+            .timestamp(20.)\
+            .value(1.)
+
+        expected = [{
+            'timestamp': 20.,
+            'streams': ['/test'],
+            'values': {'doubles': [1.]}
+        }]
+        data = builder.get_data().to_object()
+        assert json.dumps(data['time_series'], sort_keys=True) == json.dumps(expected, sort_keys=True)
+
+    def test_multiple_entries(self):
+        builder = XVIZBuilder()
+        setup_pose(builder)
+
+        builder.time_series('/test')\
+            .timestamp(20.)\
+            .value(1.)
+
+        builder.time_series('/foo')\
+            .timestamp(20.)\
+            .value(2.)
+
+        expected = [{
+            'timestamp': 20.,
+            'streams': ['/test', '/foo'],
+            'values': {'doubles': [1., 2.]}
+        }]
+        data = builder.get_data().to_object()
+        assert json.dumps(data['time_series'], sort_keys=True) == json.dumps(expected, sort_keys=True)

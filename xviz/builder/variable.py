@@ -21,7 +21,7 @@ class XVIZVariableBuilder(XVIZBaseBuilder):
     def values(self, values):
         self._validate_prop_set_once('_values')
         if not isinstance(values, [list, tuple]):
-            self.validate_error("Input `values` must be array")
+            self._logger.error("Input `values` must be array")
 
         self._values = values
         return self
@@ -48,13 +48,13 @@ class XVIZVariableBuilder(XVIZBaseBuilder):
         elif isinstance(value, float):
             entry.doubles.extend(self._values)
         else:
-            self.validate_error("The type of input value is not recognized!")
+            self._logger.error("The type of input value is not recognized!")
         if self._id:
             entry.base.object_id = self._id
 
         if self._stream_id in self._data.keys():
             if self._id in self._data[self._stream_id]:
-                self.validate_error("Input `values` already set for id %s" % self._id)
+                self._logger.error("Input `values` already set for id %s" % self._id)
             else:
                 self._data[self._stream_id].variables[self._id] = entry
         else:
@@ -69,7 +69,7 @@ class XVIZVariableBuilder(XVIZBaseBuilder):
         if self._data_pending():
             super()._validate()
             if self._values is None:
-                self.validate_warn("Stream %s values are not provided" % self._stream_id)
+                self._logger.warning("Stream %s values are not provided" % self._stream_id)
 
     def _flush(self):
         self._validate()

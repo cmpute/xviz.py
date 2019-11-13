@@ -28,7 +28,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
         if not isinstance(data, np.ndarray) or not isinstance(data, str):
             # TODO: support PILLOW and other image types
-            self.validate_error("An image data must be a string or numpy array")
+            self._logger.error("An image data must be a string or numpy array")
         self._validate_prop_set_once("_image")
         self._type = PRIMITIVE_TYPES.IMAGE
         self._image = Image(data=data)
@@ -40,7 +40,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         Add dimension specs for image data
         '''
         if not self._image:
-            self.validate_error("An image needs to be set first")
+            self._logger.error("An image needs to be set first")
 
         self._image.width_px = width_pixel
         self._image.height_px = height_pixel
@@ -96,9 +96,9 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         self._validate_prop_set_once("_radius")
 
         if len(start) != 3:
-            self.validate_error("The start position must be of the form [x, y, z] where {} was provided".format(start))
+            self._logger.error("The start position must be of the form [x, y, z] where {} was provided".format(start))
         if len(end) != 3:
-            self.validate_error("The end position must be of the form [x, y, z] where {} was provided".format(end))
+            self._logger.error("The end position must be of the form [x, y, z] where {} was provided".format(end))
         
         
         self._vertices = [start, end]
@@ -123,7 +123,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         self._validate_prop_set_once("_vertices")
 
         if len(point) != 3:
-            self.validate_error("A position must be of the form [x, y, z] where {} was provided".format(point))
+            self._logger.error("A position must be of the form [x, y, z] where {} was provided".format(point))
         
         self._vertices = [point]
         return self
@@ -160,10 +160,10 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
         if self._type == PRIMITIVE_TYPES.IMAGE:
             if self._image == None or self._image.data == None:
-                self.validate_warn("Stream {} image data are not provided.".format(self._stream_id))
+                self._logger.warning("Stream {} image data are not provided.".format(self._stream_id))
         else:
             if self._vertices == None:
-                self.validate_warn("Stream {} primitives vertices are not provided.".format(self._stream_id))
+                self._logger.warning("Stream {} primitives vertices are not provided.".format(self._stream_id))
 
     def _flush(self):
         self._validate()
@@ -180,7 +180,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
     def _validate_prerequisite(self):
         if not self._type:
-            self.validate_error("Start from a primitive first, e.g polygon(), image(), etc.")
+            self._logger.error("Start from a primitive first, e.g polygon(), image(), etc.")
 
     def _flush_primitives(self):
         if self._stream_id not in self._primitives.keys():
@@ -243,8 +243,8 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
     def _validate_style(self):
         properties = self._style.keys()
-        if self._type in PRIMITIVE_STYLE_MAP.keys():
-            valid_props = PRIMITIVE_STYLE_MAP[self._type]
+        valid_props = PRIMITIVE_STYLE_MAP.get(self._type)
+        if valid_props:
             invalid_props = [prop for prop in properties if prop not in valid_props]
             if len(invalid_props) > 0:
                 self._logger.warning("Invalid style properties %s for stream %s",
