@@ -3,12 +3,11 @@ from easydict import EasyDict as edict
 import numpy as np
 
 from xviz.builder.base_builder import build_object_style, build_stream_style
-from xviz.builder.validator import XVIZValidator
 from xviz.v2.session_pb2 import Metadata, StreamMetadata, LogInfo, UIPanelInfo
 
 class XVIZMetadataBuilder:
     def __init__(self, logger=logging.getLogger("xviz")):
-        self._validator = XVIZValidator(logger)
+        self._logger = logger
 
         self._data = Metadata(version="2.0.0")
         self._temp_ui_builder = None
@@ -85,7 +84,7 @@ class XVIZMetadataBuilder:
 
     def style_class(self, name, style):
         if not self._stream_id:
-            self._validator.error('A stream must set before adding a style rule.')
+            self._logger.error('A stream must set before adding a style rule.')
             return self
 
         stream_rule = edict(name=name, style=build_object_style(style))

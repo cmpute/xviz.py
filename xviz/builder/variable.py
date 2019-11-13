@@ -2,8 +2,8 @@ from xviz.builder.base_builder import XVIZBaseBuilder, CATEGORY
 from xviz.v2.core_pb2 import Variable, VariableState
 
 class XVIZVariableBuilder(XVIZBaseBuilder):
-    def __init__(self, metadata, validator):
-        super().__init__(CATEGORY.POSE, metadata, validator)
+    def __init__(self, metadata, logger=None):
+        super().__init__(CATEGORY.POSE, metadata, logger)
 
         # Stores variable data by stream then id
         # They will then be group when constructing final object
@@ -14,12 +14,12 @@ class XVIZVariableBuilder(XVIZBaseBuilder):
         self._values = None
 
     def id(self, identifier):
-        self.validate_prop_set_once('_id')
+        self._validate_prop_set_once('_id')
         self._id = identifier
         return self
 
     def values(self, values):
-        self.validate_prop_set_once('_values')
+        self._validate_prop_set_once('_values')
         if not isinstance(values, [list, tuple]):
             self.validate_error("Input `values` must be array")
 

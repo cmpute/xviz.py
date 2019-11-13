@@ -1,124 +1,88 @@
+import logging
 from easydict import EasyDict as edict
 
-PRIMITIVE_TYPES = edict(
-    # Geometry primitives
-    circle='circle',
-    image='image',
-    point='point',
-    polygon='polygon',
-    polyline='polyline',
-    stadium='stadium',
-    text='text',
+from xviz.v2.session_pb2 import StreamMetadata
+from xviz.v2.style_pb2 import StyleStreamValue
 
-    # UI primitives
-    treetable='treetable'
-)
+CATEGORY = StreamMetadata.Category
+PRIMITIVE_TYPES = StreamMetadata.PrimitiveType
+UIPRIMITIVE_TYPES = StreamMetadata.UIPrimitiveType
 
-STYLES = edict(
-    stroke_color='stroke_color',
-    fill_color='fill_color',
-    radius='radius',
-    radius_pixels='radius_pixels',
-    radius_min_pixels='radius_min_pixels',
-    radius_max_pixels='radius_max_pixels',
-    stroke_width='stroke_width',
-    stroke_width_min_pixels='stroke_width_min_pixels',
-    stroke_width_max_pixels='stroke_width_max_pixels',
-    height='height',
-    opacity='opacity',
-    stroked='stroked',
-    filled='filled',
-    extruded='extruded',
-    font_family='font_family',
-    font_weight='font_weight',
-    text_size='text_size',
-    text_rotation='text_rotation',
-    text_anchor='text_anchor',
-    text_baseline='text_baseline',
-    point_color_mode='point_color_mode',
-    point_color_domain='point_color_domain'
-)
-
-CATEGORY = edict(
-    ANNOTATION='ANNOTATION',
-    FUTURE_INSTANCE='FUTURE_INSTANCE',
-    POSE='POSE',
-    PRIMITIVE='PRIMITIVE',
-    UI_PRIMITIVE='UI_PRIMITIVE',
-    TIME_SERIES='TIME_SERIES',
-    VARIABLE='VARIABLE'
-)
-
-PRIMITIVE_STYLE_MAP = edict(dict([
-    (PRIMITIVE_TYPES.circle, [
-        STYLES.opacity,
-        STYLES.stroked,
-        STYLES.filled,
-        STYLES.stroke_color,
-        STYLES.fill_color,
-        STYLES.radius,
-        STYLES.radius_min_pixels,
-        STYLES.radius_max_pixels,
-        STYLES.stroke_width,
-        STYLES.stroke_width_min_pixels,
-        STYLES.stroke_width_max_pixels
+PRIMITIVE_STYLE_MAP = dict([
+    (PRIMITIVE_TYPES.CIRCLE, [
+        'opacity',
+        'stroked',
+        'filled',
+        'stroke_color',
+        'fill_color',
+        'radius',
+        'radius_min_pixels',
+        'radius_max_pixels',
+        'stroke_width',
+        'stroke_width_min_pixels',
+        'stroke_width_max_pixels'
     ]),
-    (PRIMITIVE_TYPES.point, [
-        STYLES.opacity,
-        STYLES.fill_color,
-        STYLES.radius_pixels,
-        STYLES.point_color_mode,
-        STYLES.point_color_domain
+    (PRIMITIVE_TYPES.POINT, [
+        'opacity',
+        'fill_color',
+        'radius_pixels',
+        # TODO: Following two are not listed in protobuf
+        # 'point_color_mode',
+        # 'point_color_domain'
     ]),
-    (PRIMITIVE_TYPES.polygon, [
-        STYLES.stroke_color,
-        STYLES.fill_color,
-        STYLES.stroke_width,
-        STYLES.stroke_width_min_pixels,
-        STYLES.stroke_width_max_pixels,
-        STYLES.height,
-        STYLES.opacity,
-        STYLES.stroked,
-        STYLES.filled,
-        STYLES.extruded
+    (PRIMITIVE_TYPES.POLYGON, [
+        'stroke_color',
+        'fill_color',
+        'stroke_width',
+        'stroke_width_min_pixels',
+        'stroke_width_max_pixels',
+        'height',
+        'opacity',
+        'stroked',
+        'filled',
+        'extruded'
     ]),
-    # XXX: xviz need verify from here
-    (PRIMITIVE_TYPES.text, [
-        STYLES.opacity,
-        STYLES.font_family,
-        STYLES.font_weight,
-        STYLES.text_size,
-        STYLES.text_rotation,
-        STYLES.text_anchor,
-        STYLES.text_baseline,
-        STYLES.fill_color
+    (PRIMITIVE_TYPES.TEXT, [
+        'opacity',
+        'font_family',
+        'font_weight',
+        'text_size',
+        'text_rotation',
+        'text_anchor',
+        'text_baseline',
+        'fill_color'
     ]),
-    (PRIMITIVE_TYPES.polyline, [
-        STYLES.opacity,
-        STYLES.stroke_color,
-        STYLES.stroke_width,
-        STYLES.stroke_width_min_pixels,
-        STYLES.stroke_width_max_pixels
+    (PRIMITIVE_TYPES.POLYLINE, [
+        'opacity',
+        'stroke_color',
+        'stroke_width',
+        'stroke_width_min_pixels',
+        'stroke_width_max_pixels'
     ]),
-    (PRIMITIVE_TYPES.stadium, [
-        STYLES.opacity,
-        STYLES.fill_color,
-        STYLES.radius,
-        STYLES.radius_min_pixels,
-        STYLES.radius_max_pixels
+    (PRIMITIVE_TYPES.STADIUM, [
+        'opacity',
+        'fill_color',
+        'radius',
+        'radius_min_pixels',
+        'radius_max_pixels'
     ])
-]))
+])
+
+# Test whether the keys are correct
+for fields in PRIMITIVE_STYLE_MAP.values():
+    for f in fields:
+        assert f in StyleStreamValue.__dict__
 
 class XVIZBaseBuilder:
     """
     # Reference
     [@xviz/builder/xviz-base-builder]/(https://github.com/uber/xviz/blob/master/modules/builder/src/builders/xviz-base-builder.js)
     """
-    def __init__(self, category, metadata, validator):
+    def __init__(self, category, metadata, logger=None):
         self._stream_id = None
         self._category = category
         self._metadata = metadata
-        self._validator = validator
+        self._logger = logger or logging.getLogger("xviz")
 
     def stream(self, stream_id):
         if self._stream_id:
@@ -141,17 +105,41 @@ class XVIZBaseBuilder:
     def reset(self):
         self._category = None
 
-    def _validate(self):
-        self._validator.has_prop(self, '_stream_id')
-        self._validator.has_prop(self, '_category')
-        self._validator.match_metadata(self)
+    def _validate_has_prop(self, name):
+        if not hasattr(self, name) or not getattr(self, name):
+            self._logger.warning("Stream %s: %s is missing", self.stream_id, name)
 
-    def validate_warn(self, msg):
-        self._validator.warn(msg)
-    def validate_error(self, msg):
-        self._validator.error(msg)
-    def validate_prop_set_once(self, prop):
-        self._validator.prop_set_once(self, prop)
+    def _validate_prop_set_once(self, prop, msg=None):
+        if not hasattr(self, prop):
+            return
+        val = getattr(self, prop)
+        if not val:
+            return
+        if isinstance(val, list) and len(val) == 0:
+            return
+
+        self._logger.warning(msg or "Stream {}: {} has been already set."\
+            .format(self.stream_id, prop))
+
+    def _validate_match_metadata(self):
+        if not self._metadata:  
+            self._logger.warning("Metadata is missing.")
+        elif not self._stream_id not in self._metadata.streams:
+            self._logger.warning("%s is not defined in metadata.", self._stream_id)
+        else:
+            metastream = self._metadata.streams[self._stream_id]
+            if self._category != metastream.category:
+                self._logger.warning(
+                    "Stream %s category '%s' does not match metadata definition (%s).",
+                    self._stream_id,
+                    CATEGORY.Name(self._category),
+                    CATEGORY.Name(metastream.category)
+                )
+
+    def _validate(self):
+        self._validate_has_prop('_stream_id')
+        self._validate_has_prop('_category')
+        self._validate_match_metadata()
 
 import array
 from xviz.v2.style_pb2 import StyleObjectValue, StyleStreamValue

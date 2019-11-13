@@ -2,6 +2,8 @@ import json
 from easydict import EasyDict as edict
 
 from xviz.builder import XVIZBuilder
+from xviz.builder.ui_primitive import XVIZUIPrimitiveBuilder
+from google.protobuf.json_format import MessageToDict
 import unittest
 
 PRIMARY_POSE_STREAM = '/vehicle_pose'
@@ -87,31 +89,51 @@ class TestPrimitiveBuilder(unittest.TestCase):
             })
 
         expected = {
-            'update_type': 'SNAPSHOT',
-            'updates': [
-                {
-                    'timestamp': 1.0,
-                    'poses': {
-                        PRIMARY_POSE_STREAM: DEFAULT_POSE
-                    },
-                    'primitives': {
-                        '/test/polygon': {
-                            'polygons': [
-                                {
-                                    'base': {
-                                        'style': {
-                                            'fill_color': [255, 0, 0],
-                                        },
-                                        'object_id': '1'
-                                    },
-                                    'vertices': verts
-                                }
-                            ]
+            'timestamp': 1.0,
+            'poses': {
+                PRIMARY_POSE_STREAM: DEFAULT_POSE
+            },
+            'primitives': {
+                '/test/polygon': {
+                    'polygons': [
+                        {
+                            'base': {
+                                'style': {
+                                    'fill_color': [255, 0, 0],
+                                },
+                                'object_id': '1'
+                            },
+                            'vertices': verts
                         }
-                    }
+                    ]
                 }
-            ]
+            }
         }
 
-        message = builder.get_message()
-        assert json.dumps(message, sort_keys=True) == json.dumps(expected, sort_keys=True)
+        data = builder.get_data().to_object()
+        assert json.dumps(data, sort_keys=True) == json.dumps(expected, sort_keys=True)
+
+class TestUIPrimitiveBuilder:
+    def test_null(self):
+        builder = XVIZUIPrimitiveBuilder(None, None)
+        data = builder.stream('/test').get_data()
+
+        assert data is None
+
+    def test_treetable(self):
+        builder = XVIZBuilder()
+        setup_pose(builder)
+
+        TEST_COLUMNS = [{'display_text': 'Name', 'type': 'STRING'}] # FIXME: type is in lower case in XVIZ
+        builder.ui_primitives('/test').treetable(TEST_COLUMNS)
+        data = builder.get_data().to_object()
+
+        expected = {
+            '/test': {
+                'treetable': {
+                    'columns': TEST_COLUMNS,
+                    # 'nodes': [] # FIXME: nodes are no serialized
+                }
+            }
+        }
+        assert json.dumps(data['ui_primitives'], sort_keys=True) == json.dumps(expected, sort_keys=True)

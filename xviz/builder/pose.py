@@ -6,8 +6,8 @@ class XVIZPoseBuilder(XVIZBaseBuilder):
     # Reference
     [@xviz/builder/xviz-pose-builder]/(https://github.com/uber/xviz/blob/master/modules/builder/src/builders/xviz-pose-builder.js)
     """
-    def __init__(self, metadata, validator):
-        super().__init__(CATEGORY.POSE, metadata, validator)
+    def __init__(self, metadata, logger=None):
+        super().__init__(CATEGORY.POSE, metadata, logger)
 
         self._poses = None
         self.reset()

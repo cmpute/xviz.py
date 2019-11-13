@@ -2,7 +2,7 @@
 import numpy as np
 from easydict import EasyDict as edict
 
-from xviz.builder.base_builder import XVIZBaseBuilder, build_object_style, CATEGORY, PRIMITIVE_TYPES
+from xviz.builder.base_builder import XVIZBaseBuilder, build_object_style, CATEGORY, PRIMITIVE_TYPES, PRIMITIVE_STYLE_MAP
 from xviz.v2.core_pb2 import PrimitiveState
 from xviz.v2.primitives_pb2 import PrimitiveBase, Circle, Image, Point, Polygon, Polyline, Stadium, Text
 
@@ -13,8 +13,8 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
     # Reference
     [@xviz/builder/xviz-primitive-builder]/(https://github.com/uber/xviz/blob/master/modules/builder/src/builders/xviz-primitive-builder.js)
     """
-    def __init__(self, metadata, validator):
-        super().__init__(CATEGORY.PRIMITIVE, metadata, validator)
+    def __init__(self, metadata, logger=None):
+        super().__init__(CATEGORY.PRIMITIVE, metadata, logger)
 
         self._primitives = {}
         self.reset()
@@ -29,8 +29,8 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         if not isinstance(data, np.ndarray) or not isinstance(data, str):
             # TODO: support PILLOW and other image types
             self.validate_error("An image data must be a string or numpy array")
-        self.validate_prop_set_once("_image")
-        self._type = PRIMITIVE_TYPES.image
+        self._validate_prop_set_once("_image")
+        self._type = PRIMITIVE_TYPES.IMAGE
         self._image = Image(data=data)
 
         return self
@@ -51,9 +51,9 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         if self._type:
             self._flush()
 
-        self.validate_prop_set_once("_vertices")
+        self._validate_prop_set_once("_vertices")
         self._vertices = vertices
-        self._type = PRIMITIVE_TYPES.polygon
+        self._type = PRIMITIVE_TYPES.POLYGON
 
         return self
 
@@ -61,9 +61,9 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         if self._type:
             self._flush()
 
-        self.validate_prop_set_once("_vertices")
+        self._validate_prop_set_once("_vertices")
         self._vertices = vertices
-        self._type = PRIMITIVE_TYPES.polyline
+        self._type = PRIMITIVE_TYPES.POLYLINE
 
         return self
 
@@ -71,9 +71,9 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         if self._type:
             self._flush()
 
-        self.validate_prop_set_once("_vertices")
+        self._validate_prop_set_once("_vertices")
         self._vertices[:] = vertices
-        self._type = PRIMITIVE_TYPES.point
+        self._type = PRIMITIVE_TYPES.POINT
 
         return self
 
@@ -81,11 +81,11 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         if self._type:
             self._flush()
 
-        self.validate_prop_set_once("_radius")
+        self._validate_prop_set_once("_radius")
         self.position(position)
 
         self._radius = radius
-        self._type = PRIMITIVE_TYPES.circle
+        self._type = PRIMITIVE_TYPES.CIRCLE
 
         return self
 
@@ -93,7 +93,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         if self._type:
             self._flush()
 
-        self.validate_prop_set_once("_radius")
+        self._validate_prop_set_once("_radius")
 
         if len(start) != 3:
             self.validate_error("The start position must be of the form [x, y, z] where {} was provided".format(start))
@@ -103,7 +103,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         
         self._vertices = [start, end]
         self._radius = radius
-        self._type = PRIMITIVE_TYPES.stadium
+        self._type = PRIMITIVE_TYPES.STADIUM
 
         return self
 
@@ -112,15 +112,15 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         if self._type:
             self._flush()
 
-        self.validate_prop_set_once('_text')
+        self._validate_prop_set_once('_text')
 
         self._text = message
-        self._type = PRIMITIVE_TYPES.text
+        self._type = PRIMITIVE_TYPES.TEXT
 
         return self
     
     def position(self, point):
-        self.validate_prop_set_once("_vertices")
+        self._validate_prop_set_once("_vertices")
 
         if len(point) != 3:
             self.validate_error("A position must be of the form [x, y, z] where {} was provided".format(point))
@@ -129,28 +129,28 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         return self
 
     def colors(self, color_array):
-        self.validate_prop_set_once('_colors')
+        self._validate_prop_set_once('_colors')
         self._colors = color_array
 
         return self
 
     def style(self, style):
         self._validate_prerequisite()
-        self.validate_prop_set_once('_style')
+        self._validate_prop_set_once('_style')
         self._style = style
 
         return self
 
     def id(self, identifier):
         self._validate_prerequisite()
-        self.validate_prop_set_once('_id')
+        self._validate_prop_set_once('_id')
         self._id = identifier
 
         return self
 
     def classes(self, class_list):
         self._validate_prerequisite()
-        self.validate_prop_set_once('_classes')
+        self._validate_prop_set_once('_classes')
 
         self._classes = class_list
         return self
@@ -158,7 +158,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
     def _validate(self):
         super()._validate()
 
-        if self._type == PRIMITIVE_TYPES.image:
+        if self._type == PRIMITIVE_TYPES.IMAGE:
             if self._image == None or self._image.data == None:
                 self.validate_warn("Stream {} image data are not provided.".format(self._stream_id))
         else:
@@ -187,7 +187,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
             self._primitives[self._stream_id] = PrimitiveState()
         stream = self._primitives[self._stream_id]
 
-        array_field_name = self._type + 's'
+        array_field_name = PRIMITIVE_TYPES.Name(self._type).lower() + 's'
         array = getattr(stream, array_field_name)
 
         obj = self._format_primitives()
@@ -203,21 +203,21 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
             self._colors = bytes([item for sublist in self._colors for item in sublist])
 
         # Embed primitive data
-        if self._type == PRIMITIVE_TYPES.polygon:
+        if self._type == PRIMITIVE_TYPES.POLYGON:
             obj = Polygon(vertices=self._vertices)
-        elif self._type == PRIMITIVE_TYPES.polyline:
+        elif self._type == PRIMITIVE_TYPES.POLYLINE:
             obj = Polyline(vertices=self._vertices)
-        elif self._type == PRIMITIVE_TYPES.point:
+        elif self._type == PRIMITIVE_TYPES.POINT:
             obj = Point(points=self._vertices)
             if self._colors:
                 obj.colors.extend(self._colors)
-        elif self._type == PRIMITIVE_TYPES.text:
+        elif self._type == PRIMITIVE_TYPES.TEXT:
             obj = Text(position=self._vertices[0], text=self._text)
-        elif self._type == PRIMITIVE_TYPES.circle:
+        elif self._type == PRIMITIVE_TYPES.CIRCLE:
             obj = Circle(center=self._vertices[0], radius=self._radius)
-        elif self._type == PRIMITIVE_TYPES.stadium:
+        elif self._type == PRIMITIVE_TYPES.STADIUM:
             obj = Stadium(start=self._vertices[0], end=self._vertices[1], radius=self._radius)
-        elif self._type == PRIMITIVE_TYPES.image:
+        elif self._type == PRIMITIVE_TYPES.IMAGE:
             if self._vertices:
                 self._image.position = self._vertices[0]
             obj = self._image
@@ -242,7 +242,13 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         return obj
 
     def _validate_style(self):
-        self._validator.validateStyle(self)
+        properties = self._style.keys()
+        if self._type in PRIMITIVE_STYLE_MAP.keys():
+            valid_props = PRIMITIVE_STYLE_MAP[self._type]
+            invalid_props = [prop for prop in properties if prop not in valid_props]
+            if len(invalid_props) > 0:
+                self._logger.warning("Invalid style properties %s for stream %s",
+                                     ', '.join(invalid_props), self.stream_id)
 
     def reset(self):
         self._type = None
