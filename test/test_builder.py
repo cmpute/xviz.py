@@ -28,19 +28,14 @@ class TestPoseBuilder(unittest.TestCase):
         setup_pose(builder)
 
         expected = {
-            'update_type': 'SNAPSHOT',
-            'updates': [
-                {
-                    'timestamp': 1.0,
-                    'poses': {
-                        PRIMARY_POSE_STREAM: DEFAULT_POSE
-                    }
-                }
-            ]
+            'timestamp': 1.0,
+            'poses': {
+                PRIMARY_POSE_STREAM: DEFAULT_POSE
+            }
         }
 
-        message = builder.get_message()
-        assert json.dumps(message, sort_keys=True) == json.dumps(expected, sort_keys=True)
+        data = builder.get_data().to_object()
+        assert json.dumps(data, sort_keys=True) == json.dumps(expected, sort_keys=True)
 
     def test_multiple_poses(self):
         builder = XVIZBuilder()
@@ -53,25 +48,20 @@ class TestPoseBuilder(unittest.TestCase):
             .orientation(0.44, 0.55, 0.66)
 
         expected = {
-            'update_type': 'SNAPSHOT',
-            'updates': [
-                {
-                    'timestamp': 1.0,
-                    'poses': {
-                        PRIMARY_POSE_STREAM: DEFAULT_POSE,
-                        "/vehicle-pose-2": {
-                            'timestamp': 2.0,
-                            'map_origin': {'longitude': 4.4, 'latitude': 5.5, 'altitude': 6.6},
-                            'position': [44., 55., 66.],
-                            'orientation': [0.44, 0.55, 0.66]
-                        }
-                    }
+            'timestamp': 1.0,
+            'poses': {
+                PRIMARY_POSE_STREAM: DEFAULT_POSE,
+                "/vehicle-pose-2": {
+                    'timestamp': 2.0,
+                    'map_origin': {'longitude': 4.4, 'latitude': 5.5, 'altitude': 6.6},
+                    'position': [44., 55., 66.],
+                    'orientation': [0.44, 0.55, 0.66]
                 }
-            ]
+            }
         }
 
-        message = builder.get_message()
-        assert json.dumps(message, sort_keys=True) == json.dumps(expected, sort_keys=True)
+        data = builder.get_data().to_object()
+        assert json.dumps(data, sort_keys=True) == json.dumps(expected, sort_keys=True)
 
 class TestPrimitiveBuilder(unittest.TestCase):
 
@@ -79,7 +69,9 @@ class TestPrimitiveBuilder(unittest.TestCase):
         builder = XVIZBuilder()
         setup_pose(builder)
 
-        verts = [[0., 0., 0.], [4., 0., 0.], [4., 3., 0.]]
+        # TODO: Test whether we need unravel
+        # verts = [[0., 0., 0.], [4., 0., 0.], [4., 3., 0.]]
+        verts = [0., 0., 0., 4., 0., 0., 4., 3., 0.]
         builder.primitive('/test/polygon')\
             .polygon(verts)\
             .id('1')\

@@ -2,6 +2,7 @@ import logging
 from easydict import EasyDict as edict
 import numpy as np
 
+from xviz.message import XVIZMessage
 from xviz.builder.base_builder import build_object_style, build_stream_style
 from xviz.v2.session_pb2 import Metadata, StreamMetadata, LogInfo, UIPanelInfo
 
@@ -13,7 +14,7 @@ class XVIZMetadataBuilder:
         self._temp_ui_builder = None
         self._reset()
 
-    def get_metadata(self):
+    def get_data(self):
         self._flush()
         
         metadata = self._data
@@ -28,6 +29,9 @@ class XVIZMetadataBuilder:
                     config=panels[panel_key]
                 )
         return metadata
+
+    def get_message(self):
+        return XVIZMessage(metadata=self.get_data())
 
     def start_time(self, time):
         self._data.log_info.start_time = time
@@ -104,7 +108,7 @@ class XVIZMetadataBuilder:
             elif stream_data.category in [2, 3]:
                 stream_data.scalar_type = self._temp_type
 
-            self._data.streams[self._stream_id] = stream_data
+            self._data.streams[self._stream_id].MergeFrom(stream_data)
         
         self._reset()
 

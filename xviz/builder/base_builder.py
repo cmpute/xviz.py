@@ -4,7 +4,10 @@ from easydict import EasyDict as edict
 from xviz.v2.session_pb2 import StreamMetadata
 from xviz.v2.style_pb2 import StyleStreamValue
 
+ANNOTATION_TYPES = StreamMetadata.AnnotationType
 CATEGORY = StreamMetadata.Category
+COORDINATE_TYPES = StreamMetadata.CoordinateType
+SCALAR_TYPE = StreamMetadata.ScalarType
 PRIMITIVE_TYPES = StreamMetadata.PrimitiveType
 UIPRIMITIVE_TYPES = StreamMetadata.UIPrimitiveType
 

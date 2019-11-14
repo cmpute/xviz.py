@@ -1,41 +1,16 @@
+"""
+This module provides a example scenario where a vehicle drives along a circle.
+"""
+
 import math
 import time
 import json
 
-DEG_1_AS_RAD = math.pi / 180;
-DEG_90_AS_RAD = 90 * DEG_1_AS_RAD;
+import xviz
+import xviz.builder as xbuilder
 
-circle_metadata = {
-    'type': 'xviz/metadata',
-    'data': {
-        'version': '2.0.0',
-        'streams': {
-            '/vehicle_pose': {},
-            '/circle': {
-                'coordinate': 'IDENTITY',
-                'stream_style': {
-                    'fill_color': [200, 0, 70, 128]
-                }
-            },
-            '/ground_grid_h': {
-                'coordinate': 'IDENTITY',
-                'stream_style': {
-                    'stroked': True,
-                    'stroke_width': 0.2,
-                    'stroke_color': [0, 255, 0, 128]
-                }
-            },
-            '/ground_grid_v': {
-                'coordinate': 'IDENTITY',
-                'stream_style': {
-                    'stroked': True,
-                    'stroke_width': 0.2,
-                    'stroke_color': [0, 255, 0, 128]
-                }
-            }
-        }
-    }
-}
+DEG_1_AS_RAD = math.pi / 180
+DEG_90_AS_RAD = 90 * DEG_1_AS_RAD
 
 class CircleScenario:
     def __init__(self, live=True, radius=30, duration=10, speed=10):
@@ -44,10 +19,31 @@ class CircleScenario:
         self._duration = duration
         self._speed = speed
         self._live = live
-        self._grid = self._draw_grid()
 
     def get_metadata(self):
-        metadata = json.loads(json.dumps(circle_metadata)) # copy
+        builder = xviz.XVIZMetadataBuilder()
+        builder.stream("/vehicle_pose")
+        builder.stream("/circle")\
+            .coordinate(xviz.COORDINATE_TYPES.IDENTITY)\
+            .stream_style({'fill_color': [200, 0, 70, 128]})
+        builder.stream("/ground_grid_h")\
+            .coordinate(xviz.COORDINATE_TYPES.IDENTITY)\
+            .stream_style({
+                'stroked': True,
+                'stroke_width': 0.2,
+                'stroke_color': [0, 255, 0, 128]
+            })
+        builder.stream("/ground_grid_v")\
+            .coordinate(xviz.COORDINATE_TYPES.IDENTITY)\
+            .stream_style({
+                'stroked': True,
+                'stroke_width': 0.2,
+                'stroke_color': [0, 255, 0, 128]
+            })
+        metadata = {
+            'type': 'xviz/metadata',
+            'data': builder.get_message().to_object()
+        }
 
         if not self._live:
             log_start_time = self._timestamp
@@ -61,33 +57,26 @@ class CircleScenario:
     def get_message(self, time_offset):
         timestamp = self._timestamp + time_offset
 
+        builder = xviz.XVIZBuilder()
+        self._draw_pose(builder, timestamp)
+        self._draw_grid(builder)
+        data = builder.get_message()
+
         return {
             'type': 'xviz/state_update',
-            'data': {
-                'update_type': 'snapshot',
-                'updates': [
-                    {
-                        'timestamp': timestamp,
-                        'poses': self._draw_pose(timestamp),
-                        'primitives': self._grid
-                    }
-                ]
-            }
+            'data': data.to_object()
         }
 
-    def _draw_pose(self, timestamp):
+    def _draw_pose(self, builder, timestamp):
         circumference = math.pi * self._radius * 2
         degrees_persec = 360 / (circumference / self._speed)
         current_degrees = timestamp * degrees_persec
         angle = current_degrees * DEG_1_AS_RAD
-        return {
-            '/vehicle_pose': {
-                'timestamp': timestamp,
-                # Make the car orient the the proper direction on the circle
-                'orientation': [0, 0, DEG_90_AS_RAD + current_degrees * DEG_1_AS_RAD],
-                'position': [self._radius * math.cos(angle), self._radius * math.sin(angle), 0]
-            }
-        }
+
+        builder.pose()\
+            .timestamp(timestamp)\
+            .orientation(0, 0, DEG_90_AS_RAD + current_degrees * DEG_1_AS_RAD)\
+            .position(self._radius * math.cos(angle), self._radius * math.sin(angle), 0)
 
     def _calculate_grid(self, size):
         grid = [0]
@@ -95,36 +84,14 @@ class CircleScenario:
             grid = [-i] + grid + [i]
         return grid
 
-    def _draw_grid(self):
+    def _draw_grid(self, builder: xviz.XVIZBuilder):
         # Have grid extend beyond car path
         grid_size = self._radius + 10
         grid = self._calculate_grid(grid_size)
 
-        gridxviz_h = [{"vertices": [x, -grid_size, 0, x, grid_size, 0]} for x in grid]
-        gridxviz_v = [{"vertices": [-grid_size, y, 0, grid_size, y, 0]} for y in grid]
-
-        return {
-            '/ground_grid_h': {
-                'polylines': gridxviz_h
-            },
-            '/ground_grid_v': {
-                'polylines': gridxviz_v
-            },
-            '/circle': {
-                'circles': [
-                    {
-                        'center': [0.0, 0.0, 0.0],
-                        'radius': self._radius
-                    },
-                    {
-                        'center': [self._radius, 0.0, 0.1],
-                        'radius': 1,
-                        'base': {
-                            'style': {
-                                'fill_color': [0, 0, 255]
-                            }
-                        }
-                    }
-                ]
-            }
-        }
+        for x in grid:
+            builder.primitive('/ground_grid_h').polyline([x, -grid_size, 0, x, grid_size, 0])
+            builder.primitive('/ground_grid_v').polyline([-grid_size, x, 0, grid_size, x, 0])
+        builder.primitive('/circle').circle([0.0, 0.0, 0.0], self._radius)
+        builder.primitive('/circle').circle([self._radius, 0.0, 0.1], 1)\
+            .style({'fill_color': [0, 0, 255]})

@@ -1,7 +1,7 @@
 import logging
 from easydict import EasyDict as edict
 
-from xviz.message import XVIZData
+from xviz.message import XVIZFrame, XVIZMessage
 
 from xviz.builder.link import XVIZLinkBuilder
 from xviz.builder.future_instance import XVIZFutureInstanceBuilder
@@ -12,6 +12,7 @@ from xviz.builder.ui_primitive import XVIZUIPrimitiveBuilder
 from xviz.builder.time_series import XVIZTimeSeriesBuilder
 
 from xviz.v2.core_pb2 import StreamSet
+from xviz.v2.session_pb2 import StateUpdate
 from google.protobuf.json_format import MessageToDict
 
 PRIMARY_POSE_STREAM = '/vehicle_pose'
@@ -23,6 +24,7 @@ class XVIZBuilder:
         self._metadata = metadata
         self._disable_streams = disable_streams or []
         self._stream_builder = None
+        self._update_type = StateUpdate.UpdateType.INCREMENTAL
 
         self._links_builder = XVIZLinkBuilder(self._metadata, self._logger)
         self._pose_builder = XVIZPoseBuilder(self._metadata, self._logger)
@@ -69,8 +71,8 @@ class XVIZBuilder:
         if (not poses) or (PRIMARY_POSE_STREAM not in poses):
             self._logger.error('Every message requires a %s stream', PRIMARY_POSE_STREAM)
 
-        data = XVIZData(StreamSet(
-            timestamp=poses[PRIMARY_POSE_STREAM].timestamp, # FIXME: is timestamp required?
+        data = XVIZFrame(StreamSet(
+            timestamp=poses[PRIMARY_POSE_STREAM].timestamp, # FIXME: does timestamp have to be the same with pose?
             poses=poses,
             primitives=self._primitives_builder.get_data(),
             future_instances=self._future_instance_builder.get_data(),
@@ -83,9 +85,8 @@ class XVIZBuilder:
         return data
 
     def get_message(self):
-
-        message = dict( # TODO: return XVIZ message
-            update_type='SNAPSHOT',
-            updates=[self.get_data().to_object()] # TODO: pass raw data
-        )
+        message = XVIZMessage(StateUpdate(
+            update_type=self._update_type,
+            updates=[self.get_data().data]
+        ))
         return message

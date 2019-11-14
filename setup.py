@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='xviz',
-    version='0.0.2',
+    version='0.0.3',
     description='Python implementation of XVIZ protocol',
     author='Yuanxin Zhong',
     author_email='cmpute@gmail.com',

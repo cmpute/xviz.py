@@ -196,11 +196,8 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         self.reset()
 
     def _format_primitive(self):
-        # Flatten arrays
-        if self._vertices:
-            self._vertices = [item for sublist in self._vertices for item in sublist]
-        if self._colors:
-            self._colors = bytes([item for sublist in self._colors for item in sublist])
+        # XXX: Flatten arrays, TODO: need more elegant way
+        # flatten_vertices = [item for sublist in self._vertices for item in sublist]
 
         # Embed primitive data
         if self._type == PRIMITIVE_TYPES.POLYGON:
