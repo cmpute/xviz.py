@@ -1,9 +1,16 @@
 # xviz.py
+
 Python implementation of XVIZ protocol. Note that this repository only comply with the protocol standard, the some of the implemented structure and modules definition are not the same. 
 
 # Requirements
-`websockets` module requires Python 3
-[`gltflib`](https://github.com/sergkr/gltflib)
+
+Python3, `websockets`, [`gltflib`](https://github.com/sergkr/gltflib), `protobuf`, `numpy`
+
+# Get started
+
+You can try running the scenario server by `python examples/serve_scenarios.py`. Then you can run `cd examples/get-started && yarn start-live` under your `streetscape.gl` repository to see the example scenarios.
+
+Refer to documentation (to be created), examples and tests to learn how to use the library.
 
 # Reference
 - [glTF](https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md)

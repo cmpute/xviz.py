@@ -72,7 +72,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
             self._flush()
 
         self._validate_prop_set_once("_vertices")
-        self._vertices[:] = vertices
+        self._vertices = vertices
         self._type = PRIMITIVE_TYPES.POINT
 
         return self
@@ -196,7 +196,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         self.reset()
 
     def _format_primitive(self):
-        # XXX: Flatten arrays, TODO: need more elegant way
+        # XXX: Need to flatten arrays, TODO: need more elegant way
         # flatten_vertices = [item for sublist in self._vertices for item in sublist]
 
         # Embed primitive data
@@ -207,7 +207,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
         elif self._type == PRIMITIVE_TYPES.POINT:
             obj = Point(points=self._vertices)
             if self._colors:
-                obj.colors.extend(self._colors)
+                obj.colors = bytes(self._colors)
         elif self._type == PRIMITIVE_TYPES.TEXT:
             obj = Text(position=self._vertices[0], text=self._text)
         elif self._type == PRIMITIVE_TYPES.CIRCLE:

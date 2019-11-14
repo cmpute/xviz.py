@@ -1,7 +1,9 @@
 import logging
+from typing import Union
 from easydict import EasyDict as edict
 
-from xviz.v2.session_pb2 import StreamMetadata
+from xviz.message import XVIZMessage
+from xviz.v2.session_pb2 import Metadata, StreamMetadata
 from xviz.v2.style_pb2 import StyleStreamValue
 
 ANNOTATION_TYPES = StreamMetadata.AnnotationType
@@ -81,10 +83,10 @@ class XVIZBaseBuilder:
     # Reference
     [@xviz/builder/xviz-base-builder]/(https://github.com/uber/xviz/blob/master/modules/builder/src/builders/xviz-base-builder.js)
     """
-    def __init__(self, category, metadata, logger=None):
+    def __init__(self, category, metadata: Union[Metadata, XVIZMessage], logger=None):
         self._stream_id = None
         self._category = category
-        self._metadata = metadata
+        self._metadata = metadata.data if isinstance(metadata, XVIZMessage) else metadata
         self._logger = logger or logging.getLogger("xviz")
 
     def stream(self, stream_id):
@@ -125,9 +127,9 @@ class XVIZBaseBuilder:
             .format(self.stream_id, prop))
 
     def _validate_match_metadata(self):
-        if not self._metadata:  
+        if not self._metadata:
             self._logger.warning("Metadata is missing.")
-        elif not self._stream_id not in self._metadata.streams:
+        elif self._stream_id not in self._metadata.streams:
             self._logger.warning("%s is not defined in metadata.", self._stream_id)
         else:
             metastream = self._metadata.streams[self._stream_id]

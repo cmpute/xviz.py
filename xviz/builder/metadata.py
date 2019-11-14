@@ -52,14 +52,28 @@ class XVIZMetadataBuilder:
         self._stream_id = stream_id
         return self
 
-    # Used for validation in XVIZBuilder
     def category(self, category):
-        self._temp_stream.category = StreamMetadata.Category.Value(category.upper())
+        '''
+        Assign category for the stream. Used for validation in XVIZBuilder and not required for data.
+        '''
+        if isinstance(category, int):
+            self._temp_stream.category = category
+        elif isinstance(category, str):
+            self._temp_stream.category = StreamMetadata.Category.Value(category.upper())
+        else:
+            self._logger.error("Invalid value type for category!")
         return self
 
-    # Used for validation in XVIZBuilder
     def type(self, t):
-        self._temp_type = t.upper()
+        '''
+        Assign primitive type for the stream. Used for validation in XVIZBuilder and not required for data.
+        '''
+        if isinstance(t, int):
+            self._temp_type = t
+        elif isinstance(t, str):
+            self._temp_type = t.upper()
+        else:
+            self._logger.error("Invalid value type for category!")
         return self
 
     def source(self, source):

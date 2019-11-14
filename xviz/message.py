@@ -6,7 +6,7 @@ from xviz.v2.session_pb2 import StateUpdate, Metadata
 from xviz.v2.options_pb2 import xviz_json_schema
 from google.protobuf.json_format import MessageToDict
 
-def _unravel_list(list_: list, width: int) -> List[list]:
+def _unravel_list(list_: list, width: int) -> List[list]: # This is actually not used
     if len(list_) % width != 0:
         raise ValueError("The shape of the list is incorrect!")
 
@@ -41,27 +41,11 @@ class XVIZFrame:
 
         if 'primitives' in dataobj:
             for pdata in dataobj['primitives'].values():
-                # TODO: need to process vertices?
-                '''
-                if 'polygons' in pdata:
-                    for pldata in pdata['polygons']:
-                        if 'vertices' in pldata:
-                            pldata['vertices'] = _unravel_list(pldata['vertices'], 3)
-                if 'polylines' in pdata:
-                    for pldata in pdata['polylines']:
-                        if 'vertices' in pldata:
-                            pldata['vertices'] = _unravel_list(pldata['vertices'], 3)
-                        if 'colors' in pldata:
-                            # TODO: identify size from vertices
-                            pldata['colors'] = _unravel_list(pldata['colors'], 4)
+                # process colors
                 if 'points' in pdata:
                     for pldata in pdata['points']:
-                        if 'points' in pldata:
-                            pldata['points'] = _unravel_list(pldata['points'], 3)
                         if 'colors' in pldata:
-                            # TODO: identify size from points
-                            pldata['colors'] = _unravel_list(pldata['colors'], 4)
-                '''
+                            pldata['colors'] = list(base64.b64decode(pldata['colors']))
 
                 # process styles
                 for pcats in pdata.values():

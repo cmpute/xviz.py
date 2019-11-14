@@ -69,8 +69,6 @@ class TestPrimitiveBuilder(unittest.TestCase):
         builder = XVIZBuilder()
         setup_pose(builder)
 
-        # TODO: Test whether we need unravel
-        # verts = [[0., 0., 0.], [4., 0., 0.], [4., 3., 0.]]
         verts = [0., 0., 0., 4., 0., 0., 4., 3., 0.]
         builder.primitive('/test/polygon')\
             .polygon(verts)\

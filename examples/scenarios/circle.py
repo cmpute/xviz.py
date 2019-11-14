@@ -19,30 +19,47 @@ class CircleScenario:
         self._duration = duration
         self._speed = speed
         self._live = live
+        self._metadata = None
 
     def get_metadata(self):
-        builder = xviz.XVIZMetadataBuilder()
-        builder.stream("/vehicle_pose")
-        builder.stream("/circle")\
-            .coordinate(xviz.COORDINATE_TYPES.IDENTITY)\
-            .stream_style({'fill_color': [200, 0, 70, 128]})
-        builder.stream("/ground_grid_h")\
-            .coordinate(xviz.COORDINATE_TYPES.IDENTITY)\
-            .stream_style({
-                'stroked': True,
-                'stroke_width': 0.2,
-                'stroke_color': [0, 255, 0, 128]
-            })
-        builder.stream("/ground_grid_v")\
-            .coordinate(xviz.COORDINATE_TYPES.IDENTITY)\
-            .stream_style({
-                'stroked': True,
-                'stroke_width': 0.2,
-                'stroke_color': [0, 255, 0, 128]
-            })
+        if not self._metadata:
+            builder = xviz.XVIZMetadataBuilder()
+            builder.stream("/vehicle_pose").category(xviz.CATEGORY.POSE)
+            builder.stream("/circle")\
+                .coordinate(xviz.COORDINATE_TYPES.IDENTITY)\
+                .stream_style({'fill_color': [200, 0, 70, 128]})\
+                .category(xviz.CATEGORY.PRIMITIVE)\
+                .type(xviz.PRIMITIVE_TYPES.CIRCLE)
+            builder.stream("/ground_grid_h")\
+                .coordinate(xviz.COORDINATE_TYPES.IDENTITY)\
+                .category(xviz.CATEGORY.PRIMITIVE)\
+                .type(xviz.PRIMITIVE_TYPES.POLYLINE)\
+                .stream_style({
+                    'stroked': True,
+                    'stroke_width': 0.2,
+                    'stroke_color': [0, 255, 0, 128]
+                })
+            builder.stream("/ground_grid_v")\
+                .coordinate(xviz.COORDINATE_TYPES.IDENTITY)\
+                .category(xviz.CATEGORY.PRIMITIVE)\
+                .type(xviz.PRIMITIVE_TYPES.POLYLINE)\
+                .stream_style({
+                    'stroked': True,
+                    'stroke_width': 0.2,
+                    'stroke_color': [0, 255, 0, 128]
+                })
+            builder.stream("/points")\
+                .coordinate(xviz.COORDINATE_TYPES.VEHICLE_RELATIVE)\
+                .category(xviz.CATEGORY.PRIMITIVE)\
+                .type(xviz.PRIMITIVE_TYPES.POINT)\
+                .stream_style({
+                    'radius_pixels': 6
+                })
+            self._metadata = builder.get_message()
+
         metadata = {
             'type': 'xviz/metadata',
-            'data': builder.get_message().to_object()
+            'data': self._metadata.to_object()
         }
 
         if not self._live:
@@ -57,7 +74,7 @@ class CircleScenario:
     def get_message(self, time_offset):
         timestamp = self._timestamp + time_offset
 
-        builder = xviz.XVIZBuilder()
+        builder = xviz.XVIZBuilder(metadata=self._metadata)
         self._draw_pose(builder, timestamp)
         self._draw_grid(builder)
         data = builder.get_message()
@@ -95,3 +112,6 @@ class CircleScenario:
         builder.primitive('/circle').circle([0.0, 0.0, 0.0], self._radius)
         builder.primitive('/circle').circle([self._radius, 0.0, 0.1], 1)\
             .style({'fill_color': [0, 0, 255]})
+        builder.primitive('/points').points([3, 0, 0, 0, 3, 0, 0, 0, 3])\
+            .colors([200,40,80,80,40,200,80,200,40])\
+            .id("indicator")
