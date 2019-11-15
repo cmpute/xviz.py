@@ -4,9 +4,10 @@ from typing import Union, Dict, List
 from xviz.v2.core_pb2 import StreamSet
 from xviz.v2.session_pb2 import StateUpdate, Metadata
 from xviz.v2.options_pb2 import xviz_json_schema
+from xviz.v2.envelope_pb2 import Envelope
 from google.protobuf.json_format import MessageToDict
 
-def _unravel_list(list_: list, width: int) -> List[list]: # This is actually not used
+def _unravel_list(list_: list, width: int) -> List[list]: # XXX: This is actually not used
     if len(list_) % width != 0:
         raise ValueError("The shape of the list is incorrect!")
 
@@ -16,6 +17,7 @@ def _unravel_list(list_: list, width: int) -> List[list]: # This is actually not
     return new_list
 
 def _unravel_style_object(style: dict):
+    # TODO: support `#FFFFFFFF` style packing
     if 'fill_color' in style:
         style['fill_color'] = list(base64.b64decode(style['fill_color']))
     if 'stroke_color' in style:
@@ -58,7 +60,9 @@ class XVIZFrame:
     @property
     def data(self) -> StreamSet:
         return self._data
-        
+
+AllDataType = Union[StateUpdate, Metadata]
+
 class XVIZMessage:
     def __init__(self,
         update: StateUpdate = None,
@@ -84,7 +88,7 @@ class XVIZMessage:
         return type(self._data).DESCRIPTOR.GetOptions().Extensions[xviz_json_schema]
 
     @property
-    def data(self) -> Union[StateUpdate, Metadata]:
+    def data(self) -> AllDataType:
         return self._data
 
     def to_object(self, unravel: bool = True) -> Dict:
@@ -106,3 +110,36 @@ class XVIZMessage:
                         _unravel_style_object(sdata['stream_style'])
 
             return dataobj
+
+class XVIZEnvelope:
+    def __init__(self, data: Union[XVIZMessage, AllDataType]):
+        if isinstance(data, XVIZMessage):
+            type_str = data.get_schema()
+            data = data.data
+        else:
+            type_str = XVIZMessage(data).get_schema()
+        type_str.replace("session", "xviz")
+
+        self._type = type(data)
+        self._data = Envelope(type=type_str, data=data)
+
+    @property
+    def data(self) -> Envelope:
+        return self._data
+
+    def to_object(self, unravel: bool = True) -> Dict:
+        if not unravel:
+            return MessageToDict(self._data, preserving_proto_field_name=True)
+
+        return {
+            "type": self._data.type,
+            "data": self.to_message().to_object(unravel=unravel)
+        }
+
+    def to_message(self) -> XVIZMessage:
+        if isinstance(self._data.data, StateUpdate)
+            return XVIZMessage(update=self._data.data)
+        elif isinstance(self._data.data, Metadata):
+            return XVIZMessage(update=self._data.data)
+        else:
+            raise ValueError("Unrecognized envelope data")

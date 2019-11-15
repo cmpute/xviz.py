@@ -28,6 +28,7 @@ class XVIZPrimitiveBuilder(XVIZBaseBuilder):
 
         if not isinstance(data, np.ndarray) or not isinstance(data, str):
             # TODO: support PILLOW and other image types
+            # should save raw data and preserve mimetype?
             self._logger.error("An image data must be a string or numpy array")
         self._validate_prop_set_once("_image")
         self._type = PRIMITIVE_TYPES.IMAGE

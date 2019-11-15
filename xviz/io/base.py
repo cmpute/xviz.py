@@ -1,6 +1,7 @@
+from .sources import BaseSource
 
 class XVIZBaseWriter:
-    def __init__(self, source):
+    def __init__(self, source: BaseSource):
         '''
         :param sink: object of type in xviz.io.sources
         '''
@@ -19,4 +20,4 @@ class XVIZBaseWriter:
 
 class XVIZBaseReader:
     def __init__(self, source):
-        pass
+        raise NotImplementedError()
