@@ -45,41 +45,57 @@ class DirectorySource:
 class ZipSource:
     pass
 
+class _BytesIOWrapper(io.BytesIO):
+    '''
+    This class is for wrap BytesIO in MemorySource
+    '''
+    def __init__(self, source, key=None):
+        if key and key in source._data:
+            super().__init__(source._data[key])
+        elif source._data:
+            super().__init__(source._data)
+        else:
+            super().__init__()
+
+        self._source = source
+        self._key = key
+
+    def close(self):
+        if self._key:
+            self._source._data[self._key] = bytes(self.getbuffer())
+        else:
+            self._source._data = bytes(self.getbuffer())
+        super().close()
+
 class MemorySource:
+
     def __init__(self, latest_only=False):
         self._latest_only = latest_only
         if latest_only:
-            self._data = io.BytesIO()
+            self._data = b''
         else:
-            self._data = defaultdict(io.BytesIO)
+            self._data = dict()
 
     def open(self, name, mode=None):
+        if self._latest_only:
+            return _BytesIOWrapper(self)
+        else:
+            return _BytesIOWrapper(self, name)
+
+    def read(self, name=None):
         if self._latest_only:
             return self._data
         else:
             return self._data[name]
 
-    def read(self, name=None):
-        if self._latest_only:
-            self._data.seek(0)
-            return self._data.read()
-        else:
-            self._data[name].seek(0)
-            return self._data[name].read()
-
     def write(self, data, name=None):
         if self._latest_only:
-            self._data = io.BytesIO()
-            self._data.write(data)
+            self._data = data
         else:
-            self._data[name].write(data)
+            self._data[name] = data
 
     def close(self):
-        if self._latest_only:
-            self._data.close()
-        else:
-            for value in self._data.values():
-                value.close()
+        del self._data
 
 class SQLiteSource:
     pass

@@ -154,16 +154,16 @@ class GLTFBuilder:
         self.register_required_extension(ext)
 
     def register_used_extension(self, ext):
-        if 'extensionUsed' not in self._json.keys():
+        if 'extensionsUsed' not in self._json:
             self._json.extensionsUsed = []
-        if ext not in self._json.extensionUsed:
-            self._json.extensionUsed.append(ext)
+        if ext not in self._json.extensionsUsed:
+            self._json.extensionsUsed.append(ext)
 
     def register_required_extension(self, ext):
-        if 'extensionRequired' not in self._json.keys():
-            self._json.extensionRequired = []
-        if ext not in self._json.extensionRequired:
-            self._json.extensionRequired.append(ext)
+        if 'extensionsRequired' not in self._json:
+            self._json.extensionsRequired = []
+        if ext not in self._json.extensionsRequired:
+            self._json.extensionsRequired.append(ext)
 
     def add_image(self, obj):
         if not isinstance(obj, ImageWrapper):
@@ -252,6 +252,7 @@ class GLTFBuilder:
 
 class XVIZGLBWriter(XVIZBaseWriter):
     def __init__(self, sink, wrap_envelope=True, use_xviz_extension=True):
+        # TODO: also support precision limit in GLTF Json
         super().__init__(sink)
 
         self._use_xviz_extension = use_xviz_extension
