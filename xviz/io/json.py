@@ -1,23 +1,41 @@
+import json
 from .base import XVIZBaseWriter
-from easydict import EasyDict
-import base64
-import numpy as np
+
+from xviz.message import XVIZEnvelope, XVIZMessage, Metadata
 
 class XVIZJsonWriter(XVIZBaseWriter):
-    def __init__(self, sink, envelope=True, precision=10, as_array_buffer=False):
+    def __init__(self, sink, wrap_envelope=True, float_precision=10, as_array_buffer=False):
         super().__init__(sink)
+        self._wrap_envelop = wrap_envelope
+        self._json_precision = float_precision
+        self._counter = 2
 
-        self.wrote_message_index = None
-        self.options = EasyDict(envelope=envelope,
-            precision=precision, as_array_buffer=as_array_buffer)
-
-    def _save_timestamp(self, xviz_data, index):
-        pass
-
-    def write_metadata(self, xviz_metadata):
+    def write_message(self, message: XVIZMessage, index: int = None):
         self._check_valid()
-        self._save_timestamp(xviz_metadata)
+        if self._wrap_envelop:
+            obj = XVIZEnvelope(message).to_object()
+        else:
+            obj = message.to_object()
 
-        if self.options.envelope:
-            raise NotImplementedError() # TODO: implement envelope
-        raise NotImplementedError() # TODO: continue
+        # Process necessary information
+        if isinstance(message.data, Metadata):
+            self._save_timestamp(message.data)
+            fname = "1-frame.glb"
+        else:
+            if not index:
+                index = self._counter
+                self._counter += 1
+
+            self._save_timestamp(message.data, index)
+            fname = "%d-frame.glb" % index
+
+        # Encode GLB into file
+        result = [] # These codes are for float truncation
+        for part in json.JSONEncoder(separators=(',', ':')).iterencode(obj):
+            try:
+                rounded = round(float(part), self._json_precision)
+            except ValueError:
+                pass
+            else: part = str(rounded)
+            result.append(part)
+        self._source.write(''.join(result).encode('ascii'), fname)

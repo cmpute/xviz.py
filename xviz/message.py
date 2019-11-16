@@ -118,10 +118,10 @@ class XVIZEnvelope:
             data = data.data
         else:
             type_str = XVIZMessage(data).get_schema()
-        type_str.replace("session", "xviz")
 
         self._type = type(data)
-        self._data = Envelope(type=type_str, data=data)
+        self._data = Envelope(type=type_str.replace("session", "xviz"))
+        self._data.data.Pack(data)
 
     @property
     def data(self) -> Envelope:
@@ -137,9 +137,13 @@ class XVIZEnvelope:
         }
 
     def to_message(self) -> XVIZMessage:
-        if isinstance(self._data.data, StateUpdate)
-            return XVIZMessage(update=self._data.data)
-        elif isinstance(self._data.data, Metadata):
-            return XVIZMessage(update=self._data.data)
+        if self._data.type == "xviz/metadata":
+            udata = Metadata()
+            self._data.data.Unpack(udata)
+            return XVIZMessage(metadata=udata)
+        elif self._data.type == "xviz/state_update":
+            udata = StateUpdate()
+            self._data.data.Unpack(udata)
+            return XVIZMessage(update=udata)
         else:
             raise ValueError("Unrecognized envelope data")

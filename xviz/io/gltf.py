@@ -3,15 +3,13 @@ This module provides basic io under GLTF format
 """
 
 import logging
-import json, array, struct
+import json, array, struct, base64
 from typing import Union
 from collections import namedtuple
 from easydict import EasyDict as edict
 
-import numpy as np
-
 from xviz.io.base import XVIZBaseWriter
-from xviz.message import XVIZMessage, XVIZEnvelope, AllDataType, Metadata
+from xviz.message import XVIZMessage, XVIZEnvelope, Metadata
 
 # Constants
 
@@ -113,7 +111,7 @@ class GLTFBuilder:
 
         return len(self._json.bufferViews) - 1
 
-    def add_buffer(self, buffer: Union[bytes, array.array], accessor_size: int):
+    def add_buffer(self, buffer: array.array):
         '''
         Add a binary buffer. Builds glTF "JSON metadata" and saves buffer reference.
         Buffer will be copied into BIN chunk during "pack".
@@ -125,8 +123,8 @@ class GLTFBuilder:
         :param count: XXX
         :return: accessor_index: Index of added buffer in "accessors" list
         '''
-        buffer_view_index = self.add_buffer_view(buffer)
-        return self.add_accessor(buffer_view_index, size=accessor_size,
+        buffer_view_index = self.add_buffer_view(buffer.tobytes())
+        return self.add_accessor(buffer_view_index, size=buffer.itemsize,
             component_type=component_type_d[buffer.typecode], count=len(buffer))
 
     def add_application_data(self, key: str, data):
@@ -166,6 +164,19 @@ class GLTFBuilder:
             self._json.extensionRequired = []
         if ext not in self._json.extensionRequired:
             self._json.extensionRequired.append(ext)
+
+    def add_image(self, obj):
+        if not isinstance(obj, ImageWrapper):
+            raise ValueError("Image should be wrapped with ImageWrapper")
+
+        buffer_view_index = self.add_buffer_view(obj)
+        self._json.images.append(image_t(
+            bufferView=buffer_view_index,
+            mimeType=obj.mime_type,
+            width=obj.width,
+            height=obj.height
+        )._asdict())
+        return len(self._json.images) - 1
 
     ################ Output ############
 
@@ -226,20 +237,6 @@ class GLTFBuilder:
 
         # Else return original
         return data
-
-    def add_image(self, obj):
-        # TODO: infer image type from binary
-        if not isinstance(obj, ImageWrapper):
-            raise ValueError("Image should be wrapped with ImageWrapper")
-
-        buffer_view_index = self.add_buffer_view(obj)
-        self._json.images.append(image_t(
-            bufferView=buffer_view_index,
-            mimeType=obj.mime_type,
-            width=obj.width,
-            height=obj.height
-        )._asdict())
-        return len(self._json.images) - 1
     
     def add_point_cloud(self, obj):
         raise NotImplementedError()
@@ -253,31 +250,18 @@ class GLTFBuilder:
     def add_compressed_point_cloud(self, attributes):
         raise NotImplementedError()
 
-class GLBWriter(XVIZBaseWriter):
-    def __init__(self, envelope=True, use_xviz_extension=True):
-        self._message_timings = edict(messages={})
+class XVIZGLBWriter(XVIZBaseWriter):
+    def __init__(self, sink, wrap_envelope=True, use_xviz_extension=True):
+        super().__init__(sink)
+
         self._use_xviz_extension = use_xviz_extension
-        self._counter = 1
-        self._warp_envelop = envelope
-
-    def _save_timestamp(self, xviz_data: AllDataType, index: int = None):
-        if index: # normal data
-            if not xviz_data.updates:
-                raise ValueError("Cannot find timestamp")
-
-            times = [update.timestamp for update in xviz_data.updates]
-            tmin, tmax = min(times), max(times)
-
-            self._message_timings.messages[index] = (tmin, tmax, index, "%d-frame" % index)
-        else: # metadata
-            if xviz_data.HasField('log_info'):
-                self._message_timings.start_time = xviz_data.log_info.start_time
-                self._message_timings.end_time = xviz_data.log_info.end_time
+        self._wrap_envelop = wrap_envelope
+        self._counter = 2
 
     def write_message(self, message: XVIZMessage, index: int = None):
-        
+
         self._check_valid()
-        if self._warp_envelop:
+        if self._wrap_envelop:
             obj = XVIZEnvelope(message).to_object()
         else:
             obj = message.to_object()
@@ -285,17 +269,38 @@ class GLBWriter(XVIZBaseWriter):
 
         # Process necessary information
         if isinstance(message.data, Metadata):
-            self._save_timestamp(message)
+            self._save_timestamp(message.data)
             fname = "1-frame.glb"
         else:
             if not index:
                 index = self._counter
                 self._counter += 1
 
-            self._save_timestamp(message, index)
+            self._save_timestamp(message.data, index)
             fname = "%d-frame.glb" % index
 
-            # TODO: wrap image data
+            # Wrap image data and point cloud
+            if self._wrap_envelop:
+                dataobj = obj['data']['updates']
+            else:
+                dataobj = obj['updates']
+            if 'primitives' in dataobj:
+                for pdata in dataobj['primitives'].values():
+                    # process point cloud
+                    if 'points' in pdata:
+                        for pldata in pdata['points']:
+                            if 'points' in pldata:
+                                pldata['points'] = array.array('f', pldata['points'])
+
+                    # process images
+                    if 'images' in pdata:
+                        for imdata in pdata['points']:
+                            imdata['data'] = ImageWrapper(
+                                image=base64.b64decode(imdata['data']),
+                                width=imdata['width_px'],
+                                height=imdata['height_px'],
+                                mime_type='image/png', # FIXME: use Pillow to detect type
+                            )
 
         # Encode GLB into file
         packed_data = builder.pack_binary_json(obj)
@@ -306,9 +311,3 @@ class GLBWriter(XVIZBaseWriter):
 
         with self._source.open(fname) as fout:
             builder.flush(fout)
-
-    def close(self):
-        if self._source:
-            self._write_message_index()
-
-        super().close()

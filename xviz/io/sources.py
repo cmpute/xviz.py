@@ -61,8 +61,10 @@ class MemorySource:
 
     def read(self, name=None):
         if self._latest_only:
+            self._data.seek(0)
             return self._data.read()
         else:
+            self._data[name].seek(0)
             return self._data[name].read()
 
     def write(self, data, name=None):
