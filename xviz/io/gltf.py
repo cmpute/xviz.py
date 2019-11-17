@@ -9,7 +9,7 @@ from collections import namedtuple
 from easydict import EasyDict as edict
 
 from xviz.io.base import XVIZBaseWriter
-from xviz.message import XVIZMessage, XVIZEnvelope, Metadata
+from xviz.message import XVIZMessage, XVIZEnvelope, StateUpdate
 
 # Constants
 
@@ -268,18 +268,9 @@ class XVIZGLBWriter(XVIZBaseWriter):
             obj = message.to_object()
         builder = GLTFBuilder()
 
-        # Process necessary information
-        if isinstance(message.data, Metadata):
-            self._save_timestamp(message.data)
-            fname = "1-frame.glb"
-        else:
-            if not index:
-                index = self._counter
-                self._counter += 1
+        fname = self._get_sequential_name(message, index) + '.glb'
 
-            self._save_timestamp(message.data, index)
-            fname = "%d-frame.glb" % index
-
+        if isinstance(message.data, StateUpdate):
             # Wrap image data and point cloud
             if self._wrap_envelop:
                 dataobj = obj['data']['updates']

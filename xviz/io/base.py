@@ -3,7 +3,7 @@ from easydict import EasyDict as edict
 import json
 
 from xviz.io.sources import BaseSource
-from xviz.message import AllDataType
+from xviz.message import AllDataType, XVIZMessage, Metadata
 
 class XVIZBaseWriter:
     def __init__(self, source: BaseSource):
@@ -15,6 +15,21 @@ class XVIZBaseWriter:
         self._source = source
         self._message_timings = dict(messages={})
         self._wrote_message_index = False
+        self._counter = 2
+
+    def _get_sequential_name(self, message: XVIZMessage, index=None):
+        raw_data = message.data
+        if isinstance(raw_data, Metadata):
+            self._save_timestamp(raw_data)
+            fname = "1-frame"
+        else:
+            if not index:
+                index = self._counter
+                self._counter += 1
+
+            self._save_timestamp(raw_data, index)
+            fname = "%d-frame" % index
+        return fname
 
     def _write_message_index(self):
         self._check_valid()

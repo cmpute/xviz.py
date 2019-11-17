@@ -3,15 +3,19 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     DESCR = fh.read()
 
+PKGS = find_packages()
+PKGS.remove('test')
+
 setup(
     name='xviz',
-    version='0.1.0',
+    version='0.1.1',
     description='Python implementation of XVIZ protocol',
     author='Yuanxin Zhong',
     author_email='cmpute@gmail.com',
     url="https://github.com/cmpute/xviz.py",
-    # long_description=DESCR,
-    packages=find_packages(),
+    long_description=DESCR,
+    long_description_content_type='text/markdown',
+    packages=PKGS,
     install_requires=['numpy', 'easydict', 'protobuf', 'websockets'],
     classifiers=[
         'Programming Language :: Python :: 3',

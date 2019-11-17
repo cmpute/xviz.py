@@ -8,7 +8,6 @@ class XVIZJsonWriter(XVIZBaseWriter):
         super().__init__(sink)
         self._wrap_envelop = wrap_envelope
         self._json_precision = float_precision
-        self._counter = 2
 
     def write_message(self, message: XVIZMessage, index: int = None):
         self._check_valid()
@@ -17,17 +16,7 @@ class XVIZJsonWriter(XVIZBaseWriter):
         else:
             obj = message.to_object()
 
-        # Process necessary information
-        if isinstance(message.data, Metadata):
-            self._save_timestamp(message.data)
-            fname = "1-frame.glb"
-        else:
-            if not index:
-                index = self._counter
-                self._counter += 1
-
-            self._save_timestamp(message.data, index)
-            fname = "%d-frame.glb" % index
+        fname = self._get_sequential_name(message, index) + '.json'
 
         # Encode GLB into file
         result = [] # These codes are for float truncation
